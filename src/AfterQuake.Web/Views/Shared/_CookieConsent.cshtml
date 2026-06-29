@@ -1,0 +1,29 @@
+<div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-gray-900 text-white px-4 py-4 z-[9999] hidden">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p class="text-sm text-gray-300">
+            Usamos cookies para mejorar tu experiencia. Al continuar navegando, aceptas nuestra 
+            <a href="/Home/Privacy" class="text-teal-400 underline">Política de Privacidad</a>.
+        </p>
+        <div class="flex gap-2 flex-shrink-0">
+            <button onclick="acceptCookies()" class="bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700">
+                Aceptar
+            </button>
+            <button onclick="declineCookies()" class="bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm hover:bg-gray-600">
+                Rechazar
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+if (!localStorage.getItem('cookieConsent')) {
+    document.getElementById('cookie-banner')?.classList.remove('hidden');
+}
+function acceptCookies() {
+    localStorage.setItem('cookieConsent', 'accepted');
+    document.getElementById('cookie-banner')?.classList.add('hidden');
+}
+function declineCookies() {
+    localStorage.setItem('cookieConsent', 'declined');
+    document.getElementById('cookie-banner')?.classList.add('hidden');
+}
+</script>

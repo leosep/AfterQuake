@@ -1,0 +1,39 @@
+@model IReadOnlyList<OfficialCommunication>
+@{ ViewData["Title"] = "Comunicados Oficiales"; }
+<div class="max-w-3xl mx-auto px-4 py-6">
+    <h1 class="text-xl font-bold text-gray-900 mb-6">Comunicados Oficiales</h1>
+    @if (!Model.Any())
+    {
+        <div class="text-center py-12 text-gray-500">No hay comunicados oficiales.</div>
+    }
+    <div class="space-y-4">
+        @foreach (var c in Model)
+        {
+            <div class="card-emergency @(c.Severity == CommunicationSeverity.Critical ? "border-red-300 bg-red-50" : "")">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl @(c.Severity == CommunicationSeverity.Critical ? "bg-red-600" : "bg-blue-600") text-white flex items-center justify-center flex-shrink-0">
+                        <i class="bi @(c.Severity == CommunicationSeverity.Critical ? "bi-exclamation-triangle" : "bi-megaphone")"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-900">@c.Title</h3>
+                        <p class="text-sm text-gray-500 mt-1">@c.Summary</p>
+                        @if (c.PublishedAt.HasValue)
+                        {
+                            <p class="text-xs text-gray-400 mt-2">Publicado: @c.PublishedAt.Value.ToString("g")</p>
+                        }
+                        @if (!string.IsNullOrEmpty(c.SignedBy))
+                        {
+                            <p class="text-xs text-gray-400">Firmado por: @c.SignedBy</p>
+                        }
+                        @if (!string.IsNullOrEmpty(c.PdfUrl))
+                        {
+                            <a href="@c.PdfUrl" target="_blank" class="text-sm text-teal-600 font-medium mt-2 inline-block no-underline">
+                                <i class="bi bi-filetype-pdf"></i> Ver documento oficial
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

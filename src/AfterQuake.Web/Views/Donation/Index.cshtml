@@ -1,0 +1,87 @@
+@model IReadOnlyList<Donation>
+@{
+    ViewData["Title"] = "Donaciones";
+}
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-xl flex items-center justify-center">
+                <i class="bi bi-gift-fill text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">Donaciones</h1>
+                <p class="text-sm text-gray-500">Tu ayuda llega a quienes más lo necesitan</p>
+            </div>
+        </div>
+        <a href="/Donation/Create" class="tap-target bg-teal-600 text-white px-4 py-2.5 rounded-xl font-medium no-underline hover:bg-teal-700 text-sm flex items-center gap-1">
+            <i class="bi bi-plus-lg"></i> Donar
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div class="card-emergency text-center">
+            <i class="bi bi-currency-dollar text-3xl text-green-500 block mb-2"></i>
+            <div class="text-2xl font-bold text-gray-900">@Model.Where(d => d.MonetaryAmount.HasValue).Sum(d => d.MonetaryAmount ?? 0).ToString("N0")</div>
+            <div class="text-xs text-gray-500">Donado en dinero</div>
+        </div>
+        <div class="card-emergency text-center">
+            <i class="bi bi-box-seam text-3xl text-blue-500 block mb-2"></i>
+            <div class="text-2xl font-bold text-gray-900">@Model.Where(d => d.ItemQuantity.HasValue).Sum(d => d.ItemQuantity ?? 0)</div>
+            <div class="text-xs text-gray-500">Artículos donados</div>
+        </div>
+        <div class="card-emergency text-center">
+            <i class="bi bi-people text-3xl text-purple-500 block mb-2"></i>
+            <div class="text-2xl font-bold text-gray-900">@Model.Select(d => d.UserId).Distinct().Count()</div>
+            <div class="text-xs text-gray-500">Donantes</div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-12">
+            <i class="bi bi-inbox text-6xl text-gray-300 block mb-4"></i>
+            <p class="text-gray-500">No hay donaciones registradas aún.</p>
+            <a href="/Donation/Create" class="inline-block mt-4 bg-teal-600 text-white px-6 py-3 rounded-xl font-medium no-underline">Hacer una donación</a>
+        </div>
+    }
+    else
+    {
+        <div class="space-y-3">
+            @foreach (var donation in Model.Take(20))
+            {
+                <div class="card-emergency">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center">
+                            <i class="bi @(donation.DonationType == DonationType.Monetary ? "bi-currency-dollar" : "bi-box")"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-medium text-gray-900">
+                                @if (donation.DonationType == DonationType.Monetary)
+                                {
+                                    <span>$@donation.MonetaryAmount?.ToString("N0")</span>
+                                }
+                                else
+                                {
+                                    <span>@donation.ItemQuantity x @donation.ItemName</span>
+                                }
+                            </p>
+                            <p class="text-xs text-gray-500">
+                                @(donation.IsAnonymous ? "Anónimo" : donation.DonorName ?? "Anónimo") · @donation.DonatedAt.ToString("g")
+                            </p>
+                        </div>
+                        <span class="badge @(donation.Status == DonationStatus.Received ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700")">
+                            @donation.Status
+                        </span>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="mt-6 text-center">
+        <a href="/Donation/Transparency" class="text-sm text-teal-600 font-medium no-underline hover:text-teal-700">
+            Ver reporte de transparencia <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</div>

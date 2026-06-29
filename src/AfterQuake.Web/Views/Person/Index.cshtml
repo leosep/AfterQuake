@@ -1,0 +1,141 @@
+@model PagedResult<PersonReportDto>
+@{
+    ViewData["Title"] = "Personas - Desaparecidos y Encontrados";
+}
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="bi bi-people text-yellow-500"></i>
+            Personas
+        </h1>
+        <div class="flex gap-2">
+            <a href="/Person/ReportMissing" class="tap-target bg-red-600 text-white px-4 py-2.5 rounded-xl font-medium no-underline hover:bg-red-700 transition-colors text-sm flex items-center gap-1">
+                <i class="bi bi-person-plus"></i> Reportar desaparecido
+            </a>
+            <a href="/Person/ReportFound" class="tap-target bg-green-600 text-white px-4 py-2.5 rounded-xl font-medium no-underline hover:bg-green-700 transition-colors text-sm flex items-center gap-1">
+                <i class="bi bi-check-circle"></i> Reportar encontrado
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-8 h-8 bg-red-100 text-red-600 rounded-lg flex items-center justify-center">
+                    <i class="bi bi-person-x-fill"></i>
+                </div>
+                <h2 class="font-bold text-gray-800">Desaparecidos</h2>
+                <span class="badge bg-red-100 text-red-700">@Model.TotalCount</span>
+            </div>
+            <div class="space-y-3">
+                @foreach (var person in Model.Items.Where(p => p.ReportType == PersonReportType.Missing))
+                {
+                    <div class="card-emergency">
+                        <div class="flex gap-4">
+                            <div class="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                @if (!string.IsNullOrEmpty(person.PhotoUrl))
+                                {
+                                    <img src="@person.PhotoUrl" alt="Foto" class="w-full h-full object-cover" />
+                                }
+                                else
+                                {
+                                    <i class="bi bi-person text-2xl text-gray-400"></i>
+                                }
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold text-gray-900">@person.MissingPersonName</h3>
+                                <div class="flex flex-wrap gap-1.5 mt-1">
+                                    @if (person.Age.HasValue)
+                                    {
+                                        <span class="badge bg-gray-100 text-gray-600">@person.Age años</span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(person.Gender))
+                                    {
+                                        <span class="badge bg-gray-100 text-gray-600">@person.Gender</span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(person.ZoneCode))
+                                    {
+                                        <span class="badge bg-blue-100 text-blue-700">@person.ZoneCode</span>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrEmpty(person.LastKnownAddress))
+                                {
+                                    <p class="text-xs text-gray-500 mt-1"><i class="bi bi-geo-alt"></i> @person.LastKnownAddress</p>
+                                }
+                                @if (!string.IsNullOrEmpty(person.ContactPhone))
+                                {
+                                    <a href="tel:@person.ContactPhone" class="text-xs text-blue-600 mt-1 inline-flex items-center gap-1 no-underline">
+                                        <i class="bi bi-telephone"></i> @person.ContactPhone
+                                    </a>
+                                }
+                                <p class="text-xs text-gray-400 mt-1">Reportado: @person.ReportedAt.ToString("g")</p>
+                                <a href="/Person/Details/@person.Id" class="text-xs text-blue-600 font-medium mt-1 inline-block no-underline">Ver detalles</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if (!Model.Items.Where(p => p.ReportType == PersonReportType.Missing).Any())
+                {
+                    <div class="text-center py-8 text-gray-400">
+                        <i class="bi bi-search text-3xl block mb-2"></i>
+                        <p class="text-sm">No hay reportes de desaparecidos</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div>
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-8 h-8 bg-green-100 text-green-600 rounded-lg flex items-center justify-center">
+                    <i class="bi bi-person-check-fill"></i>
+                </div>
+                <h2 class="font-bold text-gray-800">Encontrados / A Salvo</h2>
+            </div>
+            <div class="space-y-3">
+                @foreach (var person in Model.Items.Where(p => p.ReportType == PersonReportType.Found || p.ReportType == PersonReportType.Safe))
+                {
+                    <div class="card-emergency border-green-200 bg-green-50">
+                        <div class="flex gap-4">
+                            <div class="w-16 h-16 bg-green-200 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <i class="bi bi-check-circle-fill text-2xl text-green-600"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold text-gray-900">@person.MissingPersonName</h3>
+                                <span class="badge bg-green-100 text-green-700">
+                                    @(person.ReportType == PersonReportType.Found ? "Encontrado" : "A salvo")
+                                </span>
+                                @if (!string.IsNullOrEmpty(person.ZoneCode))
+                                {
+                                    <span class="badge bg-blue-100 text-blue-700">@person.ZoneCode</span>
+                                }
+                                <p class="text-xs text-gray-500 mt-1">Reportado: @person.ReportedAt.ToString("g")</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if (!Model.Items.Where(p => p.ReportType == PersonReportType.Found || p.ReportType == PersonReportType.Safe).Any())
+                {
+                    <div class="text-center py-8 text-gray-400">
+                        <i class="bi bi-emoji-smile text-3xl block mb-2"></i>
+                        <p class="text-sm">No hay reportes de personas encontradas aún</p>
+                    </div>
+                }
+            </div>
+
+            <div class="mt-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
+                        <i class="bi bi-hospital"></i>
+                    </div>
+                    <h2 class="font-bold text-gray-800">Pacientes no identificados en hospitales</h2>
+                </div>
+                <a href="/Person/HospitalPatients" class="block card-emergency border border-dashed border-blue-300 hover:border-blue-500 bg-blue-50/50 text-center py-6 no-underline">
+                    <i class="bi bi-hospital text-3xl text-blue-400 block mb-2"></i>
+                    <p class="text-sm font-medium text-blue-700">Ver pacientes no identificados en hospitales</p>
+                    <p class="text-xs text-blue-500 mt-1">Si buscas a un familiar, revisa los hospitales</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

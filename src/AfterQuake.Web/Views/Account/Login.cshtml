@@ -1,0 +1,65 @@
+@using AfterQuake.Web.Controllers
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<div class="min-h-[80vh] flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <i class="bi bi-shield-fill-check text-5xl text-red-600 block mb-3"></i>
+            <h1 class="text-2xl font-bold text-gray-900">AfterQuake</h1>
+            <p class="text-gray-500 text-sm mt-1">Inicia sesión para acceder a la plataforma</p>
+        </div>
+
+        <form asp-action="Login" method="post" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div asp-validation-summary="ModelOnly" class="text-red-600 text-sm mb-4"></div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+                    <input asp-for="Email" type="email" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="tu@correo.com" autocomplete="email" />
+                    <span asp-validation-for="Email" class="text-red-500 text-xs"></span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                    <input asp-for="Password" type="password" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="••••••••" autocomplete="current-password" />
+                    <span asp-validation-for="Password" class="text-red-500 text-xs"></span>
+                </div>
+                <label class="flex items-center gap-2">
+                    <input asp-for="RememberMe" type="checkbox" class="w-4 h-4 text-red-600 rounded" />
+                    <span class="text-sm text-gray-600">Recordar sesión</span>
+                </label>
+                <div class="captcha-container">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Captcha</label>
+                    <div id="captcha-container" class="mb-2">@Html.Raw(ViewBag.CaptchaSvg)</div>
+                    <input type="hidden" name="CaptchaId" value="@ViewBag.CaptchaId" />
+                    <input asp-for="CaptchaCode" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Ingresa el código" maxlength="5" />
+                    <button type="button" onclick="refreshCaptcha()" class="text-sm text-red-600 hover:text-red-700 mt-1">
+                        <i class="bi bi-arrow-clockwise"></i> Recargar
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-xl font-bold text-base tap-target hover:bg-red-700 transition-colors mt-6">
+                <i class="bi bi-box-arrow-in-right"></i> Ingresar
+            </button>
+
+            <p class="text-center text-sm text-gray-500 mt-4">
+                <a href="/Account/ForgotPassword" class="text-red-600 font-medium no-underline hover:text-red-700">¿Olvidaste tu contraseña?</a>
+            </p>
+            <p class="text-center text-sm text-gray-500 mt-2">
+                ¿No tienes cuenta? <a href="/Account/Register" class="text-red-600 font-medium no-underline hover:text-red-700">Regístrate</a>
+            </p>
+        </form>
+
+<script>
+function refreshCaptcha() {
+    fetch('/Account/RefreshCaptcha').then(r => r.json()).then(d => {
+        document.getElementById('captcha-container').innerHTML = d.svg;
+        document.querySelector('input[name="CaptchaId"]').value = d.id;
+    });
+}
+</script>
+    </div>
+</div>

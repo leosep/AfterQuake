@@ -1,0 +1,69 @@
+@model ReportFoundDto
+@{
+    ViewData["Title"] = "Reportar Persona Encontrada";
+}
+
+<div class="max-w-2xl mx-auto px-4 py-6">
+    <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center">
+            <i class="bi bi-person-check-fill text-2xl"></i>
+        </div>
+        <div>
+            <h1 class="text-xl font-bold text-gray-900">Reportar persona encontrada</h1>
+            <p class="text-sm text-gray-500">Ayuda a reunir a una familia marcando a alguien como encontrado</p>
+        </div>
+    </div>
+
+    <form asp-action="ReportFound" method="post" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div asp-validation-summary="ModelOnly" class="text-red-600 text-sm mb-4"></div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">ID del reporte de desaparecido</label>
+                <input asp-for="ReportId" type="text" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Ej: 3fa85f64-5717-4562-b3fc-2c963f66afa6" />
+                <p class="text-xs text-gray-400 mt-1">Si tienes el ID del reporte de la persona desaparecida, ingrésalo aquí</p>
+            </div>
+
+            <div class="border-t border-gray-100 pt-4">
+                <p class="text-sm text-gray-500 mb-4">O puedes buscar a la persona en la lista de desaparecidos y reportarla:</p>
+                <a href="/Person" class="block text-center bg-green-50 border border-green-200 rounded-xl p-4 text-green-700 font-medium hover:bg-green-100 no-underline">
+                    <i class="bi bi-search"></i> Buscar en lista de desaparecidos
+                </a>
+            </div>
+
+            <h2 class="font-semibold text-gray-700 text-sm flex items-center gap-2">
+                <i class="bi bi-info-circle"></i> Datos de quién reporta
+            </h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tu nombre *</label>
+                    <input asp-for="FoundByName" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Nombre de quien encontró" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tu teléfono *</label>
+                    <input asp-for="FoundByPhone" type="tel" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="+56 9 1234 5678" />
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Ubicación donde fue encontrado</label>
+                <input asp-for="FoundNotes" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Dirección o lugar donde se encuentra la persona" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Notas adicionales</label>
+                <textarea asp-for="FoundNotes" rows="2" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Estado de la persona, si necesita atención médica..."></textarea>
+            </div>
+        </div>
+
+        <div class="mt-6 space-y-3">
+            <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg tap-target hover:bg-green-700 active:bg-green-800 transition-colors">
+                <i class="bi bi-check-circle-fill"></i> REPORTAR COMO ENCONTRADO
+            </button>
+            <a href="/Person" class="block w-full text-center text-gray-500 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors no-underline">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>

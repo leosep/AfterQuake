@@ -1,0 +1,93 @@
+@model IReadOnlyList<Donation>
+@{
+    ViewData["Title"] = "Transparencia";
+    var totalMonetary = ViewBag.TotalMonetary as decimal? ?? 0;
+    var totalItems = ViewBag.TotalItems as int? ?? 0;
+}
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-xl flex items-center justify-center">
+                <i class="bi bi-bar-chart-fill text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">Reporte de Transparencia</h1>
+                <p class="text-sm text-gray-500">Totales generales de donaciones</p>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="window.print()" class="bg-gray-800 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-1 hover:bg-gray-900">
+                <i class="bi bi-printer"></i> PDF
+            </button>
+            <a href="/Donation/Transparency?export=csv" class="bg-teal-600 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-1 no-underline hover:bg-teal-700">
+                <i class="bi bi-download"></i> CSV
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div class="card-emergency text-center">
+            <i class="bi bi-currency-dollar text-3xl text-green-500 block mb-2"></i>
+            <div class="text-3xl font-bold text-gray-900">$@totalMonetary.ToString("N0")</div>
+            <div class="text-xs text-gray-500">Total donado en dinero</div>
+        </div>
+        <div class="card-emergency text-center">
+            <i class="bi bi-box-seam text-3xl text-blue-500 block mb-2"></i>
+            <div class="text-3xl font-bold text-gray-900">@totalItems</div>
+            <div class="text-xs text-gray-500">Artículos donados</div>
+        </div>
+        <div class="card-emergency text-center">
+            <i class="bi bi-people text-3xl text-purple-500 block mb-2"></i>
+            <div class="text-3xl font-bold text-gray-900">@Model.Select(d => d.UserId).Distinct().Count()</div>
+            <div class="text-xs text-gray-500">Donantes</div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-12 text-gray-500">No hay donaciones registradas.</div>
+    }
+    else
+    {
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left font-medium text-gray-500">Fecha</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-500">Donante</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-500">Tipo</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-500">Monto/Artículo</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-500">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @foreach (var donation in Model)
+                    {
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 text-gray-500 whitespace-nowrap">@donation.DonatedAt.ToString("g")</td>
+                            <td class="px-4 py-3 text-gray-900">@(donation.IsAnonymous ? "Anónimo" : donation.DonorName ?? "Anónimo")</td>
+                            <td class="px-4 py-3">
+                                <span class="badge bg-blue-100 text-blue-700">@(donation.DonationType == DonationType.Monetary ? "Dinero" : "Artículo")</span>
+                            </td>
+                            <td class="px-4 py-3 text-gray-700">
+                                @if (donation.DonationType == DonationType.Monetary)
+                                {
+                                    <span>$@donation.MonetaryAmount?.ToString("N0")</span>
+                                }
+                                else
+                                {
+                                    <span>@donation.ItemQuantity x @donation.ItemName</span>
+                                }
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="badge @(donation.Status == DonationStatus.Distributed ? "bg-green-100 text-green-700" : donation.Status == DonationStatus.Received ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-700")">
+                                    @(donation.Status == DonationStatus.Distributed ? "Distribuido" : donation.Status == DonationStatus.Received ? "Recibido" : donation.Status.ToString())
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

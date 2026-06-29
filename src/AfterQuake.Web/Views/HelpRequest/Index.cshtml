@@ -1,0 +1,74 @@
+@model IReadOnlyList<HelpRequestDto>
+@{
+    ViewData["Title"] = "Solicitudes de Ayuda";
+}
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="bi bi-hand-index-thumb text-blue-500"></i>
+            Solicitudes de Ayuda
+        </h1>
+        <a href="/HelpRequest/Create" class="tap-target bg-blue-600 text-white px-4 py-2.5 rounded-xl font-medium no-underline hover:bg-blue-700 transition-colors text-sm flex items-center gap-1">
+            <i class="bi bi-plus-lg"></i> Nueva solicitud
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-16">
+            <i class="bi bi-inbox text-6xl text-gray-300 block mb-4"></i>
+            <h2 class="text-lg font-medium text-gray-500">No hay solicitudes</h2>
+            <p class="text-sm text-gray-400 mt-1">Las solicitudes de ayuda aparecerán aquí</p>
+        </div>
+    }
+    else
+    {
+        <div class="space-y-3">
+            @foreach (var request in Model)
+            {
+                <div class="card-emergency @(request.IsUrgent ? "border-red-300 bg-red-50" : "")">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+                            <i class="bi bi-hand-index-thumb-fill text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <span class="font-semibold text-gray-900 text-sm">@request.RequestTypeName</span>
+                                @if (request.IsUrgent)
+                                {
+                                    <span class="badge status-critical">Urgente</span>
+                                }
+                                <span class="badge
+                                    @(request.Status == HelpRequestStatus.Pending ? "status-pending" :
+                                      request.Status == HelpRequestStatus.Assigned ? "status-assigned" :
+                                      request.Status == HelpRequestStatus.Resolved ? "status-resolved" : "status-critical")">
+                                    @request.StatusName
+                                </span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(request.Description))
+                            {
+                                <p class="text-sm text-gray-600">@request.Description</p>
+                            }
+                            <div class="flex items-center gap-3 mt-2 text-xs text-gray-400 flex-wrap">
+                                <span><i class="bi bi-people"></i> @request.PeopleCount personas</span>
+                                <span><i class="bi bi-geo-alt"></i> @request.ZoneCode</span>
+                                @if (!string.IsNullOrEmpty(request.RequesterName))
+                                {
+                                    <span><i class="bi bi-person"></i> @request.RequesterName</span>
+                                }
+                                <span><i class="bi bi-clock"></i> @request.RequestedAt.ToString("g")</span>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(request.RequesterPhone))
+                        {
+                            <a href="tel:@request.RequesterPhone" class="tap-target w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-100 no-underline">
+                                <i class="bi bi-telephone-fill text-xl"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

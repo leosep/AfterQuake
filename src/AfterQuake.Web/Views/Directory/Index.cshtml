@@ -1,0 +1,67 @@
+@model IReadOnlyList<ContactDirectory>
+@{
+    ViewData["Title"] = "Directorio de Emergencia";
+}
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center">
+            <i class="bi bi-telephone-fill text-2xl"></i>
+        </div>
+        <div>
+            <h1 class="text-xl font-bold text-gray-900">Directorio de Emergencia</h1>
+            <p class="text-sm text-gray-500">Contactos oficiales y servicios disponibles</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+        @foreach (var contact in Model.Where(c => c.IsEmergencyNumber))
+        {
+            <a href="tel:@contact.PhoneNumber" class="card-emergency no-underline hover:border-red-200 @(contact.IsEmergencyNumber ? "bg-red-50 border-red-200" : "")">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-red-600 text-white flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-telephone-fill text-xl"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-gray-900 text-lg">@contact.PhoneNumber</h3>
+                        <p class="text-sm text-gray-600">@contact.OrganizationName</p>
+                        @if (!string.IsNullOrEmpty(contact.Services))
+                        {
+                            <p class="text-xs text-gray-500">@contact.Services</p>
+                        }
+                    </div>
+                    <span class="badge bg-red-100 text-red-700">Emergencia</span>
+                </div>
+            </a>
+        }
+    </div>
+
+    <h2 class="font-bold text-gray-800 mb-4">Otros contactos</h2>
+    <div class="space-y-3">
+        @foreach (var contact in Model.Where(c => !c.IsEmergencyNumber))
+        {
+            <div class="card-emergency">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-medium text-gray-900">@contact.OrganizationName</h3>
+                        <p class="text-xs text-gray-500">@contact.OrganizationType</p>
+                    </div>
+                    <div class="text-right">
+                        <a href="tel:@contact.PhoneNumber" class="text-blue-600 font-medium no-underline">@contact.PhoneNumber</a>
+                        @if (!string.IsNullOrEmpty(contact.OperatingHours))
+                        {
+                            <p class="text-xs text-gray-400">@contact.OperatingHours</p>
+                        }
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(contact.Services))
+                {
+                    <p class="text-xs text-gray-500 mt-2">@contact.Services</p>
+                }
+            </div>
+        }
+    </div>
+</div>

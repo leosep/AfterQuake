@@ -1,0 +1,37 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.sln.docstates
+*.userprefs
+.vs/
+*.DotSettings
+*.csproj.user
+
+# Node / npm
+node_modules/
+package-lock.json
+yarn.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tailwind
+wwwroot/css/tailwind.css
+
+# Logs
+logs/
+
+# Secrets
+appsettings.Local.json
+appsettings.*.local.json
+appsettings.json
+.env

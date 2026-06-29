@@ -1,0 +1,108 @@
+@model IReadOnlyList<UnidentifiedPatient>
+@{
+    ViewData["Title"] = "Pacientes no identificados en Hospitales";
+}
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+                <i class="bi bi-hospital text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">Pacientes no identificados</h1>
+                <p class="text-sm text-gray-500">Hospitales han registrado estas personas. ¿Reconoces a alguien?</p>
+            </div>
+        </div>
+        @if (User.IsInRole("ReliefOrganization") || User.IsInRole("Administrator") || User.IsInRole("SuperAdministrator"))
+        {
+            <a href="/Person/RegisterHospitalPatient" class="tap-target bg-blue-600 text-white px-4 py-2.5 rounded-xl font-medium no-underline hover:bg-blue-700 transition-colors text-sm flex items-center gap-1">
+                <i class="bi bi-plus-lg"></i> Registrar paciente
+            </a>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-16">
+            <i class="bi bi-emoji-neutral text-6xl text-gray-300 block mb-4"></i>
+            <h2 class="text-lg font-medium text-gray-500">No hay pacientes no identificados</h2>
+            <p class="text-sm text-gray-400 mt-1">Todos los pacientes en hospitales han sido identificados</p>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            @foreach (var patient in Model)
+            {
+                <div class="card-emergency">
+                    @if (!string.IsNullOrEmpty(patient.PhotoUrl))
+                    {
+                        <div class="w-full h-48 bg-gray-100 rounded-xl overflow-hidden mb-3">
+                            <img src="@patient.PhotoUrl" alt="Foto paciente" class="w-full h-full object-cover" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="w-full h-48 bg-gray-100 rounded-xl mb-3 flex items-center justify-center">
+                            <i class="bi bi-person-badge text-5xl text-gray-300"></i>
+                        </div>
+                    }
+                    <div class="space-y-2">
+                        <div class="flex flex-wrap gap-1">
+                            @if (!string.IsNullOrEmpty(patient.EstimatedAge))
+                            {
+                                <span class="badge bg-gray-100 text-gray-700">Edad aprox: @patient.EstimatedAge</span>
+                            }
+                            @if (!string.IsNullOrEmpty(patient.Gender))
+                            {
+                                <span class="badge bg-gray-100 text-gray-700">@patient.Gender</span>
+                            }
+                        </div>
+                        @if (!string.IsNullOrEmpty(patient.PhysicalDescription))
+                        {
+                            <p class="text-sm text-gray-600">@patient.PhysicalDescription</p>
+                        }
+                        @if (!string.IsNullOrEmpty(patient.Clothing))
+                        {
+                            <p class="text-xs text-gray-500"><span class="font-medium">Vestimenta:</span> @patient.Clothing</p>
+                        }
+                        @if (!string.IsNullOrEmpty(patient.DistinctiveMarks))
+                        {
+                            <p class="text-xs text-gray-500"><span class="font-medium">Señas:</span> @patient.DistinctiveMarks</p>
+                        }
+                        @if (!string.IsNullOrEmpty(patient.MedicalCondition))
+                        {
+                            <p class="text-xs text-gray-500"><span class="font-medium">Condición:</span> @patient.MedicalCondition</p>
+                        }
+                        <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                            <div class="text-xs text-gray-400">
+                                <i class="bi bi-hospital"></i> @patient.HospitalName<br />
+                                <i class="bi bi-clock"></i> @patient.AdmittedAt.ToString("g")
+                            </div>
+                            @if (!string.IsNullOrEmpty(patient.HospitalContact))
+                            {
+                                <a href="tel:@patient.HospitalContact" class="tap-target w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-100 no-underline">
+                                    <i class="bi bi-telephone-fill"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-2xl p-5">
+        <div class="flex items-start gap-3">
+            <i class="bi bi-lightbulb text-yellow-500 text-xl"></i>
+            <div>
+                <h3 class="font-semibold text-yellow-800">¿Reconoces a alguien?</h3>
+                <p class="text-sm text-yellow-700 mt-1">
+                    Si reconoces a alguna de estas personas, contacta al hospital directamente o repórtalo como encontrado 
+                    <a href="/Person/ReportFound" class="text-yellow-800 font-medium underline">aquí</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

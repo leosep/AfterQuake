@@ -1,0 +1,41 @@
+@model GuideContent
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="max-w-3xl mx-auto px-4 py-6">
+    <a href="/Guide" class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 no-underline mb-4">
+        <i class="bi bi-arrow-left"></i> Volver a guías
+    </a>
+
+    <article class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center">
+                <i class="bi @(Model.IconClass ?? "bi-info-circle")"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">@Model.Title</h1>
+                <p class="text-sm text-gray-500">@Model.Summary</p>
+            </div>
+        </div>
+
+        <div class="prose prose-sm max-w-none text-gray-700">
+            @Html.Raw(Model.Content)
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-gray-100 flex flex-wrap gap-3">
+            @if (Model.IsPdfAvailable)
+            {
+                <a href="@Model.PdfUrl" target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-700 px-4 py-2.5 rounded-xl font-medium text-sm hover:bg-red-100 no-underline">
+                    <i class="bi bi-filetype-pdf"></i> Descargar PDF
+                </a>
+            }
+            @if (!string.IsNullOrEmpty(Model.VideoUrl))
+            {
+                <a href="@Model.VideoUrl" target="_blank" class="inline-flex items-center gap-2 bg-purple-50 text-purple-700 px-4 py-2.5 rounded-xl font-medium text-sm hover:bg-purple-100 no-underline">
+                    <i class="bi bi-play-circle"></i> Ver video
+                </a>
+            }
+        </div>
+    </article>
+</div>

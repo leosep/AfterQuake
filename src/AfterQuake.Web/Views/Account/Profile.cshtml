@@ -1,0 +1,92 @@
+@model ProfileViewModel
+@{ ViewData["Title"] = "Mi Perfil"; }
+<div class="max-w-2xl mx-auto px-4 py-6">
+    <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-xl flex items-center justify-center">
+            <i class="bi bi-person-circle text-2xl"></i>
+        </div>
+        <div>
+            <h1 class="text-xl font-bold text-gray-900">Mi Perfil</h1>
+            <p class="text-sm text-gray-500">Administra tu información personal</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string msg)
+    {
+        <div class="bg-green-100 text-green-700 px-4 py-3 rounded-xl mb-4 text-sm">@msg</div>
+    }
+
+    @if (Model.PasswordExpired)
+    {
+        <div class="bg-yellow-100 text-yellow-700 px-4 py-3 rounded-xl mb-4 text-sm">
+            Tu contraseña ha expirado. Por favor cámbiala para continuar.
+        </div>
+    }
+
+    <form method="post" class="space-y-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+            <h2 class="font-bold text-gray-900">Información personal</h2>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Nombre completo</label>
+                <input asp-for="FullName" class="w-full px-4 py-2.5 rounded-xl border border-gray-200" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Email</label>
+                <input asp-for="Email" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50" readonly />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Documento de identidad</label>
+                <input asp-for="DocumentId" class="w-full px-4 py-2.5 rounded-xl border border-gray-200" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Contacto de emergencia</label>
+                <input asp-for="EmergencyContact" class="w-full px-4 py-2.5 rounded-xl border border-gray-200" />
+            </div>
+            <button type="submit" class="bg-teal-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-teal-700">
+                Guardar cambios
+            </button>
+        </div>
+    </form>
+
+    <form method="post" asp-action="ChangePassword" class="mt-6 space-y-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+            <h2 class="font-bold text-gray-900">Cambiar contraseña</h2>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Contraseña actual</label>
+                <input type="password" name="CurrentPassword" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Nueva contraseña</label>
+                <input type="password" name="NewPassword" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Confirmar nueva contraseña</label>
+                <input type="password" name="ConfirmNewPassword" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200" />
+            </div>
+            <button type="submit" class="bg-gray-800 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-gray-900">
+                Cambiar contraseña
+            </button>
+        </div>
+    </form>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-6 space-y-4">
+        <h2 class="font-bold text-gray-900">Autenticación de Dos Factores</h2>
+        @if (Model.TwoFactorEnabled)
+        {
+            <p class="text-sm text-green-600">✓ 2FA está activo</p>
+            <form method="post" asp-action="Disable" asp-controller="TwoFactor">
+                <button type="submit" class="bg-red-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-red-700">
+                    Desactivar 2FA
+                </button>
+            </form>
+        }
+        else
+        {
+            <p class="text-sm text-gray-500">Aumenta la seguridad de tu cuenta con autenticación de dos factores.</p>
+            <a href="@Url.Action("Setup", "TwoFactor")"
+               class="inline-block bg-teal-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-teal-700">
+                Configurar 2FA
+            </a>
+        }
+    </div>
+</div>

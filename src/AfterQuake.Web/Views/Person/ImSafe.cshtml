@@ -1,0 +1,21 @@
+@{
+    ViewData["Title"] = "Estoy a Salvo";
+}
+
+<div class="min-h-[80vh] flex items-center justify-center p-4">
+    <div class="w-full max-w-md text-center">
+        <div class="bg-green-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="bi bi-check-circle text-6xl text-green-600"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Estoy a salvo</h1>
+        <p class="text-gray-500 mb-8">Marca que estás bien para que tus seres queridos lo sepan</p>
+
+        <form asp-action="AmSafe" method="post" class="space-y-4">
+            <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-bold text-xl tap-target hover:bg-green-700 active:bg-green-800 transition-all btn-emergency shadow-lg shadow-green-200">
+                <i class="bi bi-check-circle-fill text-2xl"></i><br />
+                ¡ESTOY A SALVO!
+            </button>
+            <p class="text-xs text-gray-400">Tu familia y amigos podrán ver que estás bien</p>
+        </form>
+    </div>
+</div>

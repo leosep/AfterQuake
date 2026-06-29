@@ -1,0 +1,119 @@
+@model AfterQuake.Application.DTOs.DashboardDto
+@{
+    ViewData["Title"] = "Panel de Administración";
+    Layout = "_Layout";
+}
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <h1 class="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
+        <i class="bi bi-gear text-purple-500"></i>
+        Panel de Administración
+    </h1>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+        <div class="card-emergency text-center">
+            <div class="text-2xl font-bold text-red-600">@Model.ActiveEmergencies</div>
+            <div class="text-xs text-gray-500 mt-1">Emergencias</div>
+        </div>
+        <div class="card-emergency text-center">
+            <div class="text-2xl font-bold text-yellow-600">@Model.ActiveMissingPersons</div>
+            <div class="text-xs text-gray-500 mt-1">Desaparecidos</div>
+        </div>
+        <div class="card-emergency text-center">
+            <div class="text-2xl font-bold text-blue-600">@Model.PendingHelpRequests</div>
+            <div class="text-xs text-gray-500 mt-1">Solicitudes</div>
+        </div>
+        <div class="card-emergency text-center">
+            <div class="text-2xl font-bold text-green-600">@Model.ActiveShelters</div>
+            <div class="text-xs text-gray-500 mt-1">Albergues</div>
+        </div>
+        <div class="card-emergency text-center">
+            <div class="text-2xl font-bold text-purple-600">@Model.ActiveVolunteers</div>
+            <div class="text-xs text-gray-500 mt-1">Voluntarios</div>
+        </div>
+        <div class="card-emergency text-center">
+            <div class="text-2xl font-bold text-teal-600">$@Model.TotalDonationsAmount.ToString("N0")</div>
+            <div class="text-xs text-gray-500 mt-1">Donaciones</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl p-5 border border-gray-100">
+            <h2 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="bi bi-megaphone text-orange-500"></i> Acciones rápidas
+            </h2>
+            <div class="space-y-3">
+                <a href="/Admin/CreateAlert" class="flex items-center gap-3 p-3 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors no-underline">
+                    <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center">
+                        <i class="bi bi-megaphone"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800 text-sm">Publicar alerta</p>
+                        <p class="text-xs text-gray-500">Nueva alerta sísmica o comunicado</p>
+                    </div>
+                </a>
+                <a href="/Shelter/Create" class="flex items-center gap-3 p-3 bg-green-50 rounded-xl hover:bg-green-100 transition-colors no-underline">
+                    <div class="w-10 h-10 bg-green-100 text-green-600 rounded-lg flex items-center justify-center">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800 text-sm">Registrar albergue</p>
+                        <p class="text-xs text-gray-500">Nuevo refugio temporal</p>
+                    </div>
+                </a>
+                <a href="/Admin/ManageServices" class="flex items-center gap-3 p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors no-underline">
+                    <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
+                        <i class="bi bi-lightning"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800 text-sm">Estado de servicios</p>
+                        <p class="text-xs text-gray-500">Agua, luz, gas, vías</p>
+                    </div>
+                </a>
+                <a href="/Admin/Users" class="flex items-center gap-3 p-3 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors no-underline">
+                    <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800 text-sm">Gestionar usuarios</p>
+                        <p class="text-xs text-gray-500">Ver y administrar cuentas</p>
+                    </div>
+                </a>
+                <a href="/Admin/AuditLogs" class="flex items-center gap-3 p-3 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors no-underline">
+                    <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center">
+                        <i class="bi bi-journal-text"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800 text-sm">Auditoría</p>
+                        <p class="text-xs text-gray-500">Registro de acciones</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-gray-100">
+            <h2 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="bi bi-clock-history text-blue-500"></i> Solicitudes urgentes
+            </h2>
+            @if (Model.UrgentRequests.Any())
+            {
+                <div class="space-y-2">
+                    @foreach (var req in Model.UrgentRequests.Take(5))
+                    {
+                        <div class="flex items-start gap-2 p-2 bg-red-50 rounded-lg">
+                            <span class="badge status-critical mt-0.5">Urgente</span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-800">@req.RequestTypeName</p>
+                                <p class="text-xs text-gray-500 truncate">@req.RequesterName - @req.ZoneCode</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-sm text-gray-400 text-center py-8">No hay solicitudes urgentes</p>
+            }
+        </div>
+    </div>
+</div>

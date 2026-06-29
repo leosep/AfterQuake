@@ -1,0 +1,52 @@
+@model IReadOnlyList<GuideContent>
+@{
+    ViewData["Title"] = "Guías de Seguridad";
+}
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-xl flex items-center justify-center">
+            <i class="bi bi-book-fill text-2xl"></i>
+        </div>
+        <div>
+            <h1 class="text-xl font-bold text-gray-900">Guías de Seguridad</h1>
+            <p class="text-sm text-gray-500">Qué hacer antes, durante y después de un sismo</p>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-16">
+            <i class="bi bi-journal-text text-6xl text-gray-300 block mb-4"></i>
+            <p class="text-gray-500">No hay guías disponibles aún.</p>
+        </div>
+    }
+
+    <div class="space-y-4">
+        @foreach (var guide in Model)
+        {
+            <a href="/Guide/Details/@guide.Id" class="block card-emergency no-underline hover:border-teal-200">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center flex-shrink-0">
+                        <i class="bi @(guide.IconClass ?? "bi-info-circle") text-xl"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-gray-900">@guide.Title</h3>
+                        <p class="text-sm text-gray-500 mt-1">@guide.Summary</p>
+                        <div class="flex gap-2 mt-2">
+                            @if (guide.IsPdfAvailable)
+                            {
+                                <span class="badge bg-red-100 text-red-700"><i class="bi bi-filetype-pdf"></i> PDF</span>
+                            }
+                            @if (!string.IsNullOrEmpty(guide.VideoUrl))
+                            {
+                                <span class="badge bg-purple-100 text-purple-700"><i class="bi bi-play-circle"></i> Video</span>
+                            }
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right text-gray-300 mt-4"></i>
+                </div>
+            </a>
+        }
+    </div>
+</div>

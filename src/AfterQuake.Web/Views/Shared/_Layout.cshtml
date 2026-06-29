@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#dc2626" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>@ViewData["Title"] - AfterQuake</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .btn-emergency:active { transform: scale(0.95); }
+        .status-pending { background-color: rgb(254 249 195); color: rgb(133 77 14); border-color: rgb(253 230 138); }
+        .status-assigned { background-color: rgb(219 234 254); color: rgb(30 64 175); border-color: rgb(191 219 254); }
+        .status-resolved { background-color: rgb(220 252 231); color: rgb(22 101 52); border-color: rgb(187 247 208); }
+        .status-critical { background-color: rgb(254 226 226); color: rgb(153 27 27); border-color: rgb(252 165 165); }
+        .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+        .card-emergency { background-color: white; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); border: 1px solid rgb(243 244 246); padding: 1rem; transition: all 0.15s; }
+        .card-emergency:hover { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .tap-target { min-height: 48px; min-width: 48px; }
+        @@media (max-width: 640px) {
+            .container { padding-left: 12px; padding-right: 12px; }
+        }
+        @@keyframes pulse-emergency {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .animate-pulse-emergency { animation: pulse-emergency 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @@keyframes slide-up {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .slide-up { animation: slide-up 0.3s ease-out; }
+    </style>
+</head>
+<body class="h-full bg-gray-50 antialiased">
+    <div class="bg-amber-50 border-b border-amber-300 text-amber-800 text-sm px-4 py-2 text-center font-medium">
+        ⚠️ Esta aplicación está en proceso de desarrollo. Algunas funcionalidades pueden no estar disponibles.
+    </div>
+    <div class="min-h-full flex flex-col">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 safe-area-top">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="flex justify-between h-14 items-center">
+                        <a href="/" class="flex items-center gap-2 font-bold text-red-600 text-lg no-underline">
+                            <i class="bi bi-shield-fill-check text-2xl"></i>
+                            <span class="hidden sm:inline">AfterQuake</span>
+                        </a>
+                        <div class="flex items-center gap-1">
+                            <a href="/Emergency" aria-label="Emergencias activas" class="tap-target flex items-center justify-center px-3 py-2 rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors" title="Emergencias">
+                                <i class="bi bi-exclamation-triangle text-xl"></i>
+                            </a>
+                            <a href="/Person" aria-label="Personas desaparecidas y encontradas" class="tap-target flex items-center justify-center px-3 py-2 rounded-lg text-gray-600 hover:bg-yellow-50 hover:text-yellow-600 transition-colors" title="Personas">
+                                <i class="bi bi-people text-xl"></i>
+                            </a>
+                            <a href="/HelpRequest" aria-label="Solicitudes de ayuda" class="tap-target flex items-center justify-center px-3 py-2 rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors" title="Ayuda">
+                                <i class="bi bi-hand-index-thumb text-xl"></i>
+                            </a>
+                            <a href="/Shelter/Map" aria-label="Mapa de albergues" class="tap-target flex items-center justify-center px-3 py-2 rounded-lg text-gray-600 hover:bg-green-50 hover:text-green-600 transition-colors" title="Mapa">
+                                <i class="bi bi-map text-xl"></i>
+                            </a>
+                            @if (User.IsInRole("Administrator") || User.IsInRole("SuperAdministrator"))
+                            {
+                                <a href="/Admin/Dashboard" aria-label="Panel de administración" class="tap-target flex items-center justify-center px-3 py-2 rounded-lg text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-colors" title="Admin">
+                                    <i class="bi bi-gear text-xl"></i>
+                                </a>
+                            }
+                            <a href="/Account/Profile" class="tap-target flex items-center gap-1 px-3 py-2 rounded-lg text-gray-600 hover:text-teal-600 transition-colors text-sm">
+                                <i class="bi bi-person text-lg"></i>
+                                <span class="hidden sm:inline">Perfil</span>
+                            </a>
+                            <div class="relative ml-2">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                                    <button type="submit" class="tap-target flex items-center gap-1 px-3 py-2 rounded-lg text-gray-500 hover:text-red-500 transition-colors text-sm">
+                                        <i class="bi bi-box-arrow-right text-lg"></i>
+                                        <span class="hidden sm:inline">Salir</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        }
+        else
+        {
+            <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="flex justify-between h-14 items-center">
+                        <a href="/" class="flex items-center gap-2 font-bold text-red-600 text-lg no-underline">
+                            <i class="bi bi-shield-fill-check text-2xl"></i>
+                            <span>AfterQuake</span>
+                        </a>
+                        <div class="flex items-center gap-2">
+                            <a href="/Account/Login" class="tap-target px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg transition-colors no-underline">
+                                <i class="bi bi-person"></i> Ingresar
+                            </a>
+                            <a href="/Account/Register" class="tap-target px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors no-underline">
+                                Registrarse
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        }
+
+        @if (TempData["SuccessMessage"] is string successMsg)
+        {
+            <div class="fixed bottom-4 right-4 z-50 max-w-sm slide-up">
+                <div class="bg-green-600 text-white px-5 py-4 rounded-xl shadow-lg flex items-center gap-3">
+                    <i class="bi bi-check-circle-fill text-xl"></i>
+                    <p class="text-sm font-medium">@successMsg</p>
+                    <button onclick="this.parentElement.remove()" class="ml-auto text-white/70 hover:text-white">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+        }
+
+        <main class="flex-1">
+            @RenderBody()
+        </main>
+
+        <footer class="bg-white border-t border-gray-200 mt-auto">
+            <div class="max-w-7xl mx-auto px-4 py-4">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
+                    <span>&copy; @DateTime.Now.Year - AfterQuake · Sistema de Respuesta ante Terremotos</span>
+                    <div class="flex items-center gap-4">
+                        <a href="/Guide" class="hover:text-gray-700 no-underline">Guías</a>
+                        <a href="/Directory" class="hover:text-gray-700 no-underline">Contactos</a>
+                        <a href="/Home/Privacy" class="hover:text-gray-700 no-underline">Privacidad</a>
+                        <a href="/Home/Terms" class="hover:text-gray-700 no-underline">Términos</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <partial name="_CookieConsent" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/microsoft/signalr@8.0.0/dist/browser/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/notifications")
+            .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+            .build();
+
+        connection.on("ReceiveEmergencyAlert", (message) => {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 z-50 max-w-sm slide-up';
+            toast.innerHTML = `
+                <div class="bg-red-600 text-white px-5 py-4 rounded-xl shadow-lg flex items-center gap-3">
+                    <i class="bi bi-exclamation-triangle-fill text-xl animate-pulse-emergency"></i>
+                    <p class="text-sm font-medium">\${message}</p>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-auto text-white/70 hover:text-white">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 10000);
+        });
+
+        connection.start().catch(() => {});
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+            });
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

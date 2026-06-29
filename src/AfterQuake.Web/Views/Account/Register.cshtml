@@ -1,0 +1,76 @@
+@using AfterQuake.Web.Controllers
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Registro";
+}
+
+<div class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <i class="bi bi-shield-fill-check text-5xl text-red-600 block mb-3"></i>
+            <h1 class="text-2xl font-bold text-gray-900">Crear Cuenta</h1>
+            <p class="text-gray-500 text-sm mt-1">Regístrate para reportar emergencias y ayudar</p>
+        </div>
+
+        <form asp-action="Register" method="post" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div asp-validation-summary="ModelOnly" class="text-red-600 text-sm mb-4"></div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo *</label>
+                    <input asp-for="FullName" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Tu nombre" />
+                    <span asp-validation-for="FullName" class="text-red-500 text-xs"></span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico *</label>
+                    <input asp-for="Email" type="email" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="tu@correo.com" />
+                    <span asp-validation-for="Email" class="text-red-500 text-xs"></span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">RUT / Documento identidad</label>
+                    <input asp-for="DocumentId" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="12.345.678-9" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono de emergencia</label>
+                    <input asp-for="EmergencyContact" type="tel" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="+56 9 1234 5678" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña *</label>
+                    <input asp-for="Password" type="password" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Mín. 8 caracteres" autocomplete="new-password" />
+                    <span asp-validation-for="Password" class="text-red-500 text-xs"></span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña *</label>
+                    <input asp-for="ConfirmPassword" type="password" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Repite la contraseña" />
+                    <span asp-validation-for="ConfirmPassword" class="text-red-500 text-xs"></span>
+                </div>
+                <div class="captcha-container">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Captcha</label>
+                    <div id="captcha-container" class="mb-2">@Html.Raw(ViewBag.CaptchaSvg)</div>
+                    <input type="hidden" name="CaptchaId" value="@ViewBag.CaptchaId" />
+                    <input asp-for="CaptchaCode" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Ingresa el código" maxlength="5" />
+                    <button type="button" onclick="refreshCaptcha()" class="text-sm text-red-600 hover:text-red-700 mt-1">
+                        <i class="bi bi-arrow-clockwise"></i> Recargar
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-xl font-bold text-base tap-target hover:bg-red-700 transition-colors mt-6">
+                <i class="bi bi-person-plus"></i> Crear cuenta
+            </button>
+
+            <p class="text-center text-sm text-gray-500 mt-4">
+                ¿Ya tienes cuenta? <a href="/Account/Login" class="text-red-600 font-medium no-underline hover:text-red-700">Inicia sesión</a>
+            </p>
+        </form>
+
+<script>
+function refreshCaptcha() {
+    fetch('/Account/RefreshCaptcha').then(r => r.json()).then(d => {
+        document.getElementById('captcha-container').innerHTML = d.svg;
+        document.querySelector('input[name="CaptchaId"]').value = d.id;
+    });
+}
+</script>
+    </div>
+</div>

@@ -1,0 +1,80 @@
+@model CreateEmergencyReportDto
+@{
+    ViewData["Title"] = "Reportar Emergencia";
+    ViewData["HideNav"] = true;
+}
+
+<div class="min-h-screen bg-red-600 flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-6">
+            <i class="bi bi-exclamation-triangle-fill text-6xl text-white block mb-3"></i>
+            <h1 class="text-2xl font-bold text-white">Reportar Emergencia</h1>
+            <p class="text-red-200 text-sm mt-1">Describe la situación para que podamos enviar ayuda</p>
+        </div>
+
+        <form asp-action="Report" method="post" class="bg-white rounded-2xl p-6 shadow-xl">
+            <div asp-validation-summary="ModelOnly" class="text-red-600 text-sm mb-4"></div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de emergencia *</label>
+                    <select asp-for="EmergencyType" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500 tap-target">
+                        @foreach (var type in Enum.GetValues<EmergencyType>())
+                        {
+                            <option value="@type">@type.ToString()</option>
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                    <textarea asp-for="Description" rows="3" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Describe lo que está pasando..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Personas afectadas</label>
+                    <input asp-for="AffectedPeople" type="number" min="1" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500" />
+                </div>
+
+                <div>
+                    <label class="flex items-center gap-3">
+                        <input asp-for="RequiresImmediateRescue" type="checkbox" class="w-5 h-5 text-red-600 rounded" />
+                        <span class="text-sm font-medium text-gray-700">Requiere rescate inmediato</span>
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tu teléfono de contacto</label>
+                    <input asp-for="ReporterPhone" type="tel" class="w-full rounded-xl border-gray-300 border px-4 py-3 text-base focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="+56 9 1234 5678" />
+                </div>
+
+                <input asp-for="Latitude" type="hidden" id="report-lat" />
+                <input asp-for="Longitude" type="hidden" id="report-lng" />
+            </div>
+
+            <div class="mt-6 space-y-3">
+                <button type="submit" class="w-full bg-red-600 text-white py-4 rounded-xl font-bold text-lg tap-target hover:bg-red-700 active:bg-red-800 transition-colors btn-emergency shadow-lg">
+                    <i class="bi bi-send-fill"></i> ENVIAR REPORTE DE EMERGENCIA
+                </button>
+                <a href="/" class="block w-full text-center text-gray-500 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors no-underline">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    document.getElementById('report-lat').value = pos.coords.latitude;
+                    document.getElementById('report-lng').value = pos.coords.longitude;
+                },
+                () => {},
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+    </script>
+}

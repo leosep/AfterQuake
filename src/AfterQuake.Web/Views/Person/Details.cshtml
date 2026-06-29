@@ -1,0 +1,101 @@
+@model PersonReportDto
+@{
+    ViewData["Title"] = "Detalles - " + Model.MissingPersonName;
+}
+
+<div class="max-w-2xl mx-auto px-4 py-6">
+    <a href="/Person" class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 no-underline mb-4">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        @if (!string.IsNullOrEmpty(Model.PhotoUrl))
+        {
+            <div class="w-full h-64 bg-gray-100">
+                <img src="@Model.PhotoUrl" alt="Foto" class="w-full h-full object-cover" />
+            </div>
+        }
+        <div class="p-6">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">@Model.MissingPersonName</h1>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <span class="badge @(Model.Status == PersonReportStatus.Resolved ? "status-resolved" : "status-pending")">
+                            @(Model.ReportType == PersonReportType.Missing ? "Desaparecido" : Model.ReportType == PersonReportType.Found ? "Encontrado" : "A salvo")
+                        </span>
+                        @if (!string.IsNullOrEmpty(Model.ZoneCode))
+                        {
+                            <span class="badge bg-blue-100 text-blue-700">@Model.ZoneCode</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                @if (Model.Age.HasValue)
+                {
+                    <div>
+                        <p class="text-xs text-gray-500">Edad</p>
+                        <p class="text-sm font-medium">@Model.Age años</p>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Gender))
+                {
+                    <div>
+                        <p class="text-xs text-gray-500">Género</p>
+                        <p class="text-sm font-medium">@Model.Gender</p>
+                    </div>
+                }
+                @if (Model.LastSeenAt.HasValue)
+                {
+                    <div>
+                        <p class="text-xs text-gray-500">Última vez visto</p>
+                        <p class="text-sm font-medium">@Model.LastSeenAt.Value.ToString("g")</p>
+                    </div>
+                }
+                <div>
+                    <p class="text-xs text-gray-500">Reportado</p>
+                    <p class="text-sm font-medium">@Model.ReportedAt.ToString("g")</p>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="mb-4">
+                    <p class="text-xs text-gray-500 mb-1 font-medium">Descripción</p>
+                    <p class="text-sm text-gray-700">@Model.Description</p>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.LastKnownAddress))
+            {
+                <div class="mb-4">
+                    <p class="text-xs text-gray-500 mb-1 font-medium">Última ubicación conocida</p>
+                    <p class="text-sm text-gray-700">@Model.LastKnownAddress</p>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ContactPhone))
+            {
+                <div class="bg-gray-50 rounded-xl p-4 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-gray-500">Contacto</p>
+                        <p class="text-sm font-medium">@Model.ContactName</p>
+                    </div>
+                    <a href="tel:@Model.ContactPhone" class="tap-target bg-blue-600 text-white px-4 py-2.5 rounded-xl font-medium no-underline hover:bg-blue-700 transition-colors text-sm inline-flex items-center gap-1">
+                        <i class="bi bi-telephone-fill"></i> Llamar
+                    </a>
+                </div>
+            }
+
+            @if (Model.Status == PersonReportStatus.Active && Model.ReportType == PersonReportType.Missing)
+            {
+                <div class="mt-6">
+                    <a href="/Person/ReportFound" class="block w-full text-center bg-green-600 text-white py-3 rounded-xl font-medium hover:bg-green-700 transition-colors no-underline">
+                        <i class="bi bi-check-circle"></i> ¿Has visto a esta persona? Repórtala como encontrada
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

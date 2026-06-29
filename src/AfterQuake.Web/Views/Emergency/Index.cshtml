@@ -1,0 +1,59 @@
+@model IReadOnlyList<EmergencyReportDto>
+@{
+    ViewData["Title"] = "Emergencias Activas";
+}
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="bi bi-exclamation-triangle text-red-500"></i>
+            Emergencias Activas
+        </h1>
+        <a href="/Emergency/Report" class="tap-target bg-red-600 text-white px-5 py-2.5 rounded-xl font-medium no-underline hover:bg-red-700 transition-colors flex items-center gap-2">
+            <i class="bi bi-plus-lg"></i>
+            Reportar
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-16">
+            <i class="bi bi-check-circle text-6xl text-green-400 block mb-4"></i>
+            <h2 class="text-lg font-medium text-gray-600">No hay emergencias activas</h2>
+            <p class="text-sm text-gray-400 mt-1">Si ves una emergencia, repórtala inmediatamente</p>
+        </div>
+    }
+    else
+    {
+        <div class="space-y-3">
+            @foreach (var emergency in Model)
+            {
+                <div class="card-emergency">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
+                            <i class="bi bi-exclamation-triangle-fill text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="badge status-critical">@emergency.EmergencyTypeName</span>
+                                @if (emergency.RequiresImmediateRescue)
+                                {
+                                    <span class="badge bg-red-600 text-white">Rescate urgente</span>
+                                }
+                            </div>
+                            <p class="text-sm text-gray-600 line-clamp-2">@emergency.Description</p>
+                            <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                                <span><i class="bi bi-people"></i> @emergency.AffectedPeople afectados</span>
+                                <span><i class="bi bi-geo-alt"></i> @emergency.ZoneCode</span>
+                                <span><i class="bi bi-clock"></i> @emergency.ReportedAt.ToString("g")</span>
+                            </div>
+                        </div>
+                        <a href="tel:@emergency.ReporterPhone" class="tap-target w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center hover:bg-red-100 transition-colors no-underline">
+                            <i class="bi bi-telephone-fill text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
