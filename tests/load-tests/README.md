@@ -17,7 +17,7 @@ k6 run tests/load-tests/sos-stress.js
 
 ### Custom URL:
 ```bash
-k6 run -e BASE_URL=https://staging.afterquake.cl tests/load-tests/emergency.js
+k6 run -e BASE_URL=https://staging.afterquake.com.do tests/load-tests/emergency.js
 ```
 
 ## Thresholds

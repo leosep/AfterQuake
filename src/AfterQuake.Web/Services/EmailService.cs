@@ -16,7 +16,7 @@ public class EmailService
         var username = _config["Email:Username"];
         var password = _config["Email:Password"];
 
-        using var msg = new MailMessage("noreply@afterquake.cl", to, subject, body) { IsBodyHtml = true };
+        using var msg = new MailMessage("noreply@afterquake.com.do", to, subject, body) { IsBodyHtml = true };
         using var client = new SmtpClient(smtpHost, smtpPort);
         if (!string.IsNullOrEmpty(username))
             client.Credentials = new NetworkCredential(username, password);

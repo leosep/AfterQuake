@@ -40,7 +40,7 @@ public class ApiControllerTests
     [Fact]
     public async Task GetNearby_ReturnsSuccess()
     {
-        var response = await _client.GetAsync("/api/map/nearby?lat=-33.45&lng=-70.67&radius=50");
+        var response = await _client.GetAsync("/api/map/nearby?lat=18.49&lng=-69.93&radius=50");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
@@ -50,8 +50,8 @@ public class ApiControllerTests
         var dto = new CreateEmergencyReportDto
         {
             EmergencyType = EmergencyType.Medical,
-            Latitude = -33.45,
-            Longitude = -70.67,
+            Latitude = 18.49,
+            Longitude = -69.93,
             Description = "Test emergency via API"
         };
         var response = await _client.PostAsJsonAsync("/api/emergency", dto);

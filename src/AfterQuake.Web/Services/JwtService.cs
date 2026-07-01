@@ -13,8 +13,8 @@ public class JwtService
 
     public string GenerateToken(string userId, string email, string role)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-            _config["Jwt:Key"] ?? "AfterQuake_SuperSecret_Key_2024_Must_Be_32_Chars!"));
+        var jwtKey = !string.IsNullOrEmpty(_config["Jwt:Key"]) ? _config["Jwt:Key"]! : "AfterQuake_SuperSecret_Key_2024_Must_Be_32_Chars!";
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]

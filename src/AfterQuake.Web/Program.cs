@@ -42,15 +42,20 @@ public partial class Program
 
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddApplicationInsightsTelemetry(options =>
+            var aiConnStr = builder.Configuration["ApplicationInsights:ConnectionString"];
+            if (!string.IsNullOrEmpty(aiConnStr))
             {
-                options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
-            });
+                builder.Services.AddApplicationInsightsTelemetry(options =>
+                {
+                    options.ConnectionString = aiConnStr;
+                });
+            }
 
             builder.Host.UseSerilog();
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found in configuration.");
+            var redisEnabled = builder.Configuration.GetValue<bool>("Redis:Enabled");
             var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
 
             // Database
@@ -78,12 +83,19 @@ public partial class Program
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
-            // Redis + Distributed Cache
-            builder.Services.AddStackExchangeRedisCache(options =>
+            // Distributed Cache (Redis or in-memory fallback)
+            if (redisEnabled)
             {
-                options.Configuration = redisConnectionString;
-                options.InstanceName = "AfterQuake:";
-            });
+                builder.Services.AddStackExchangeRedisCache(options =>
+                {
+                    options.Configuration = redisConnectionString;
+                    options.InstanceName = "AfterQuake:";
+                });
+            }
+            else
+            {
+                builder.Services.AddDistributedMemoryCache();
+            }
 
             // DI - Domain/Application/Infrastructure services
             builder.Services.AddHttpContextAccessor();
@@ -107,6 +119,7 @@ public partial class Program
                 client.DefaultRequestHeaders.Add("User-Agent", "AfterQuake/1.0");
             });
             builder.Services.AddHostedService<BackgroundJobsService>();
+            builder.Services.AddHostedService<DatabaseSeedService>();
             builder.Services.AddTransient<JwtService>();
             builder.Services.AddSingleton<CaptchaService>();
             builder.Services.AddSingleton<MetricsService>();
@@ -115,7 +128,7 @@ public partial class Program
             builder.Services.AddScoped<SlaService>();
 
             // JWT Configuration
-            var jwtKey = builder.Configuration["Jwt:Key"] ?? "AfterQuake_SuperSecret_Key_2024_Must_Be_32_Chars!";
+            var jwtKey = !string.IsNullOrEmpty(builder.Configuration["Jwt:Key"]) ? builder.Configuration["Jwt:Key"]! : "AfterQuake_SuperSecret_Key_2024_Must_Be_32_Chars!";
             var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "AfterQuake";
             var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "AfterQuakeAPI";
 
@@ -173,24 +186,32 @@ public partial class Program
                 .AddApplicationPart(typeof(Program).Assembly)
                 .AddControllersAsServices();
 
-            // SignalR with Redis backplane for scale-out
-            builder.Services.AddSignalR(options =>
+            // SignalR (with Redis backplane for scale-out if enabled)
+            var signalR = builder.Services.AddSignalR(options =>
             {
                 options.EnableDetailedErrors = builder.Environment.IsDevelopment();
                 options.KeepAliveInterval = TimeSpan.FromSeconds(15);
                 options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
                 options.MaximumReceiveMessageSize = 128 * 1024;
-            })
-            .AddStackExchangeRedis(redisConnectionString, options =>
-            {
-                options.Configuration.ChannelPrefix = RedisChannel.Literal("AfterQuake");
             });
 
+            if (redisEnabled)
+            {
+                signalR.AddStackExchangeRedis(redisConnectionString, options =>
+                {
+                    options.Configuration.ChannelPrefix = RedisChannel.Literal("AfterQuake");
+                });
+            }
+
             // Health Checks
-            builder.Services.AddHealthChecks()
+            var healthChecks = builder.Services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>(name: "database", tags: new[] { "ready" })
-                .AddRedis(redisConnectionString, name: "redis", tags: new[] { "ready" })
                 .AddCheck<AfterQuakeHealthCheck>("afterquake_seed", tags: new[] { "ready" });
+
+            if (redisEnabled)
+            {
+                healthChecks.AddRedis(redisConnectionString, name: "redis", tags: new[] { "ready" });
+            }
 
             builder.Services.AddResponseCompression(options =>
             {
@@ -384,28 +405,6 @@ public partial class Program
 
             app.MapHub<NotificationHub>("/hubs/notifications");
             app.MapHub<EmergencyHub>("/hubs/emergency");
-
-            // Seed database
-            using (var scope = app.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                var db = services.GetRequiredService<ApplicationDbContext>();
-                var isTest = app.Environment.IsEnvironment("Testing");
-                if (isTest)
-                {
-                    await db.Database.EnsureCreatedAsync();
-                    var userManager = services.GetRequiredService<UserManager<AfterQuake.Domain.Entities.ApplicationUser>>();
-                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-                    await AfterQuake.Infrastructure.Seed.ApplicationDbContextSeed.SeedAsync(db, userManager, roleManager);
-                }
-                else if (app.Environment.IsDevelopment())
-                {
-                    await db.Database.MigrateAsync();
-                    var userManager = services.GetRequiredService<UserManager<AfterQuake.Domain.Entities.ApplicationUser>>();
-                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-                    await AfterQuake.Infrastructure.Seed.ApplicationDbContextSeed.SeedAsync(db, userManager, roleManager);
-                }
-            }
 
             Log.Information("AfterQuake started successfully");
             await app.RunAsync();

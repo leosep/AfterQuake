@@ -31,6 +31,6 @@
 - RTO (Recovery Time Objective): 2 horas para restauraciÃ³n completa
 
 ## Contactos
-- DBA: dba@afterquake.cl
-- DevOps: devops@afterquake.cl
-- Seguridad: security@afterquake.cl
+- DBA: dba@afterquake.com.do
+- DevOps: devops@afterquake.com.do
+- Seguridad: security@afterquake.com.do

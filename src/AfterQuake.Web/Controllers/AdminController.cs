@@ -51,12 +51,12 @@ public class AdminController : Controller
 
     public IActionResult Users()
     {
-        return View();
+        return RedirectToAction(nameof(Dashboard));
     }
 
     public IActionResult Reports()
     {
-        return View();
+        return RedirectToAction(nameof(Dashboard));
     }
 
     public async Task<IActionResult> AuditLogs(int page = 1, int pageSize = 50)
@@ -126,7 +126,7 @@ public class AdminController : Controller
     [HttpGet]
     public IActionResult ManageServices()
     {
-        return View();
+        return RedirectToAction(nameof(Dashboard));
     }
 
     [HttpPost]

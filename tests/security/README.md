@@ -2,7 +2,7 @@
 
 ## OWASP ZAP Scan
 ```bash
-bash tests/security/zap-scan.sh https://staging.afterquake.cl
+bash tests/security/zap-scan.sh https://staging.afterquake.com.do
 ```
 
 ## Manual Checklist

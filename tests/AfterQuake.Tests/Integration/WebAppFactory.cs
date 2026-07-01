@@ -4,9 +4,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using AfterQuake.Infrastructure.Data;
-using AfterQuake.Domain.Entities;
 using AfterQuake.Web;
-using Microsoft.AspNetCore.Identity;
 
 namespace AfterQuake.Tests.Integration;
 

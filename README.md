@@ -353,7 +353,7 @@ AfterQuake/
 | Status | int (enum) | Pending, Assigned, InProgress, Resolved |
 | Latitude, Longitude | double | Coordenadas GPS del reporte |
 | Address | nvarchar(MAX) | Dirección textual |
-| ZoneCode | nvarchar(450) | Código de zona (ej: "RM-Santiago", "V-Valparaíso") |
+| ZoneCode | nvarchar(450) | Código de zona (ej: "ZONA-DN", "ZONA-SD") |
 | Description | nvarchar(MAX) | Descripción de la emergencia |
 | AffectedPeople | int? | Número de personas afectadas |
 | RequiresImmediateRescue | bit | Requiere rescate inmediato |
@@ -1571,7 +1571,7 @@ Log.Logger = new LoggerConfiguration()
 ### HaversineServiceTests (4 tests)
 | Test | Descripción |
 |------|-------------|
-| `CalculateDistance_ShouldReturnCorrectDistance` | Distancia Santiago–Valparaíso (~98km) |
+| `CalculateDistance_ShouldReturnApproximately38KmBetweenSantiagoDRAndPuertoPlata` | Distancia Santiago–Puerto Plata (~38km) |
 | `IsWithinRadius_ShouldReturnTrue_WhenWithinRadius` | Punto dentro del radio |
 | `IsWithinRadius_ShouldReturnFalse_WhenOutsideRadius` | Punto fuera del radio |
 | `CalculateDistance_ShouldReturnZero_WhenSamePoint` | Mismo punto = distancia 0 |
@@ -1653,9 +1653,9 @@ La aplicación estará disponible en:
 En desarrollo, al ejecutar la aplicación se siembran automáticamente:
 - **5 roles:** Citizen, Volunteer, ReliefOrganization, Administrator, SuperAdministrator
 - **Admin:** admin@afterquake.com / AfterQuake2024!
-- **7 contactos de emergencia:** Carabineros (133), Ambulancia (131), Bomberos (132), PDI (134), Onemi, Cruz Roja, Chile Ayuda
+- **7 contactos de emergencia:** 911 (Sistema Nacional de Atención a Emergencias), *462 (COE), 809-200-3500 (Defensa Civil), 809-567-4357 (Cruz Roja Dominicana), 809-541-3121 (Ministerio de Salud), 809-532-6000 (Hospital Plaza de la Salud), 809-682-2151 (Policía Nacional)
 - **3 guías de seguridad:** Antes, Durante y Después del sismo
-- **4 zonas de desastre:** RM-Santiago, V-Valparaíso, VIII-Concepción, I-Antofagasta (con niveles verde)
+- **5 zonas de desastre:** ZONA-DN (Distrito Nacional), ZONA-SD (Santiago de los Caballeros), ZONA-PP (Puerto Plata), ZONA-LR (La Romana), ZONA-SPM (San Pedro de Macorís) (con niveles verde)
 
 ### Ejecutar tests
 ```bash

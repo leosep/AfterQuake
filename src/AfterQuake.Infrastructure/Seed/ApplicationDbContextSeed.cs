@@ -68,13 +68,13 @@ public static class ApplicationDbContextSeed
         if (!await context.ContactDirectories.AnyAsync())
         {
             context.ContactDirectories.AddRange(
-                new ContactDirectory { OrganizationName = "Emergencias Nacional", OrganizationType = "Emergencia", PhoneNumber = "911", IsEmergencyNumber = true, DisplayOrder = 1, IsAvailable24Hours = true },
-                new ContactDirectory { OrganizationName = "Bomberos", OrganizationType = "Emergencia", PhoneNumber = "132", IsEmergencyNumber = true, DisplayOrder = 2, IsAvailable24Hours = true },
-                new ContactDirectory { OrganizationName = "Cruz Roja", OrganizationType = "Salud", PhoneNumber = "131", IsEmergencyNumber = true, DisplayOrder = 3, IsAvailable24Hours = true },
-                new ContactDirectory { OrganizationName = "Defensa Civil", OrganizationType = "Emergencia", PhoneNumber = "133", IsEmergencyNumber = true, DisplayOrder = 4, IsAvailable24Hours = true, Services = "Rescate, evacuación, gestión de emergencias" },
-                new ContactDirectory { OrganizationName = "Hospital Central", OrganizationType = "Salud", PhoneNumber = "+56 2 2123 4567", DisplayOrder = 5, OperatingHours = "24/7", IsAvailable24Hours = true, Services = "Urgencias, traumatología, cirugía" },
-                new ContactDirectory { OrganizationName = "Carabineros de Chile", OrganizationType = "Seguridad", PhoneNumber = "133", IsEmergencyNumber = true, DisplayOrder = 6, IsAvailable24Hours = true },
-                new ContactDirectory { OrganizationName = "Ministerio de Salud", OrganizationType = "Gobierno", PhoneNumber = "+56 2 2123 4500", DisplayOrder = 7, Services = "Coordinación sanitaria nacional" }
+                new ContactDirectory { OrganizationName = "Sistema Nacional de Atención a Emergencias", OrganizationType = "Emergencia", PhoneNumber = "911", IsEmergencyNumber = true, DisplayOrder = 1, IsAvailable24Hours = true, Services = "Policía, ambulancia, bomberos, defensa civil" },
+                new ContactDirectory { OrganizationName = "Centro de Operaciones de Emergencias (COE)", OrganizationType = "Emergencia", PhoneNumber = "*462", IsEmergencyNumber = true, DisplayOrder = 2, IsAvailable24Hours = true, Services = "Coordinación nacional de emergencias" },
+                new ContactDirectory { OrganizationName = "Defensa Civil", OrganizationType = "Emergencia", PhoneNumber = "809-200-3500", IsEmergencyNumber = true, DisplayOrder = 3, IsAvailable24Hours = true, Services = "Rescate, evacuación, gestión de emergencias" },
+                new ContactDirectory { OrganizationName = "Cruz Roja Dominicana", OrganizationType = "Salud", PhoneNumber = "809-567-4357", DisplayOrder = 4, OperatingHours = "24/7", IsAvailable24Hours = true, Services = "Atención prehospitalaria, albergues, donaciones" },
+                new ContactDirectory { OrganizationName = "Ministerio de Salud Pública", OrganizationType = "Gobierno", PhoneNumber = "809-541-3121", DisplayOrder = 5, Services = "Coordinación sanitaria nacional" },
+                new ContactDirectory { OrganizationName = "Hospital General Plaza de la Salud", OrganizationType = "Salud", PhoneNumber = "809-532-6000", DisplayOrder = 6, OperatingHours = "24/7", IsAvailable24Hours = true, Services = "Urgencias, traumatología, cirugía" },
+                new ContactDirectory { OrganizationName = "Policía Nacional", OrganizationType = "Seguridad", PhoneNumber = "809-682-2151", IsEmergencyNumber = true, DisplayOrder = 7, IsAvailable24Hours = true }
             );
         }
     }
@@ -143,10 +143,11 @@ public static class ApplicationDbContextSeed
         if (!await context.DisasterZones.AnyAsync())
         {
             context.DisasterZones.AddRange(
-                new DisasterZone { ZoneCode = "ZONA-001", Name = "Zona Centro", Region = "Metropolitana", IsActive = true, EstimatedPopulation = 50000, CurrentAlertLevel = AlertLevel.Green },
-                new DisasterZone { ZoneCode = "ZONA-002", Name = "Zona Norte", Region = "Valparaíso", IsActive = true, EstimatedPopulation = 30000, CurrentAlertLevel = AlertLevel.Green },
-                new DisasterZone { ZoneCode = "ZONA-003", Name = "Zona Sur", Region = "Maule", IsActive = true, EstimatedPopulation = 25000, CurrentAlertLevel = AlertLevel.Green },
-                new DisasterZone { ZoneCode = "ZONA-004", Name = "Zona Costera", Region = "Bio-Bío", IsActive = true, EstimatedPopulation = 40000, CurrentAlertLevel = AlertLevel.Green }
+                new DisasterZone { ZoneCode = "ZONA-DN", Name = "Distrito Nacional", Region = "Santo Domingo", IsActive = true, EstimatedPopulation = 1000000, CurrentAlertLevel = AlertLevel.Green },
+                new DisasterZone { ZoneCode = "ZONA-SD", Name = "Santiago", Region = "Santiago de los Caballeros", IsActive = true, EstimatedPopulation = 600000, CurrentAlertLevel = AlertLevel.Green },
+                new DisasterZone { ZoneCode = "ZONA-PP", Name = "Puerto Plata", Region = "Puerto Plata", IsActive = true, EstimatedPopulation = 150000, CurrentAlertLevel = AlertLevel.Green },
+                new DisasterZone { ZoneCode = "ZONA-LR", Name = "La Romana", Region = "La Romana", IsActive = true, EstimatedPopulation = 200000, CurrentAlertLevel = AlertLevel.Green },
+                new DisasterZone { ZoneCode = "ZONA-SPM", Name = "San Pedro de Macorís", Region = "San Pedro de Macorís", IsActive = true, EstimatedPopulation = 180000, CurrentAlertLevel = AlertLevel.Green }
             );
         }
     }

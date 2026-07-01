@@ -33,13 +33,13 @@ public class EmergencyServiceTests : IDisposable
         {
             Description = "Incendio en edificio residencial",
             EmergencyType = EmergencyType.Fire,
-            Latitude = -33.4489,
-            Longitude = -70.6693,
-            Address = "Av. Providencia 1234",
-            ZoneCode = "RM",
+            Latitude = 18.4861,
+            Longitude = -69.9312,
+            Address = "Av. Independencia 123, Santo Domingo",
+            ZoneCode = "ZONA-DN",
             AffectedPeople = 10,
             RequiresImmediateRescue = true,
-            ReporterPhone = "+56912345678"
+            ReporterPhone = "+18095554321"
         };
 
         var result = await _service.CreateAsync(dto);

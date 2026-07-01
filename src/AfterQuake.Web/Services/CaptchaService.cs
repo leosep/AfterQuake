@@ -10,8 +10,12 @@ public class CaptchaService
         var id = Guid.NewGuid().ToString();
         var code = new string(Enumerable.Range(0, 5).Select(_ => Characters[Random.Shared.Next(Characters.Length)]).ToArray());
         _captchaStore[id] = code;
-        foreach (var k in _captchaStore.Keys.Where(k => !_captchaStore.ContainsKey(k)).Take(100).ToList())
-            _captchaStore.Remove(k);
+        if (_captchaStore.Count > 1000)
+        {
+            var expired = _captchaStore.Keys.Take(500).ToList();
+            foreach (var k in expired)
+                _captchaStore.Remove(k);
+        }
         return (id, GenerateSvg(code));
     }
 

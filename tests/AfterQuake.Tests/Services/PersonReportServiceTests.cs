@@ -36,12 +36,12 @@ public class PersonReportServiceTests : IDisposable
             Age = 35,
             Gender = "Masculino",
             Description = "Camisa roja, jeans azules",
-            LastKnownLatitude = -33.4489,
-            LastKnownLongitude = -70.6693,
-            LastKnownAddress = "Plaza de Armas",
-            ZoneCode = "RM",
+            LastKnownLatitude = 18.4861,
+            LastKnownLongitude = -69.9312,
+            LastKnownAddress = "Parque Independencia, Santo Domingo",
+            ZoneCode = "ZONA-DN",
             ContactName = "María Pérez",
-            ContactPhone = "+56912345678"
+            ContactPhone = "+18095551234"
         };
 
         var result = await _service.CreateAsync(dto);
@@ -70,9 +70,9 @@ public class PersonReportServiceTests : IDisposable
         {
             ReportId = person.Id,
             FoundByName = "Carlos López",
-            FoundByPhone = "+56987654321",
-            FoundLatitude = -33.4500,
-            FoundLongitude = -70.6700,
+            FoundByPhone = "+18095551234",
+            FoundLatitude = 18.4870,
+            FoundLongitude = -69.9320,
             FoundNotes = "Encontrado en albergue municipal"
         };
 
@@ -105,11 +105,11 @@ public class PersonReportServiceTests : IDisposable
     public async Task SearchAsync_ShouldFilterByZone()
     {
         var repo = _uow.Repository<PersonReport>();
-        await repo.AddAsync(new PersonReport { MissingPersonName = "A", ZoneCode = "RM", ReportType = PersonReportType.Missing, Status = PersonReportStatus.Active, ReportedAt = DateTime.UtcNow });
-        await repo.AddAsync(new PersonReport { MissingPersonName = "B", ZoneCode = "V", ReportType = PersonReportType.Missing, Status = PersonReportStatus.Active, ReportedAt = DateTime.UtcNow });
+        await repo.AddAsync(new PersonReport { MissingPersonName = "A", ZoneCode = "ZONA-DN", ReportType = PersonReportType.Missing, Status = PersonReportStatus.Active, ReportedAt = DateTime.UtcNow });
+        await repo.AddAsync(new PersonReport { MissingPersonName = "B", ZoneCode = "ZONA-SD", ReportType = PersonReportType.Missing, Status = PersonReportStatus.Active, ReportedAt = DateTime.UtcNow });
         await _uow.SaveChangesAsync();
 
-        var search = new PersonSearchDto { ZoneCode = "RM" };
+        var search = new PersonSearchDto { ZoneCode = "ZONA-DN" };
         var result = await _service.SearchAsync(search);
 
         Assert.Equal(1, result.TotalCount);

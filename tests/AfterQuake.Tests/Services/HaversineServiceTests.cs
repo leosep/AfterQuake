@@ -8,26 +8,26 @@ public class HaversineServiceTests
     private readonly IHaversineService _service = new HaversineService();
 
     [Fact]
-    public void CalculateDistance_ShouldReturnApproximately115KmBetweenSantiagoAndValparaiso()
+    public void CalculateDistance_ShouldReturnApproximately38KmBetweenSantiagoDRAndPuertoPlata()
     {
-        var santiagoLat = -33.4489;
-        var santiagoLng = -70.6693;
-        var valparaisoLat = -33.0472;
-        var valparaisoLng = -71.6127;
+        var santiagoLat = 19.4517;
+        var santiagoLng = -70.6970;
+        var puertoPlataLat = 19.7936;
+        var puertoPlataLng = -70.6891;
 
-        var distance = _service.CalculateDistance(santiagoLat, santiagoLng, valparaisoLat, valparaisoLng);
+        var distance = _service.CalculateDistance(santiagoLat, santiagoLng, puertoPlataLat, puertoPlataLng);
 
-        Assert.True(distance > 85 && distance < 110,
-            $"Expected ~98km but got {distance}km");
+        Assert.True(distance > 30 && distance < 50,
+            $"Expected ~38km but got {distance}km");
     }
 
     [Fact]
     public void IsWithinRadius_ShouldReturnTrueWhenPointsAreWithinGivenRadius()
     {
-        var centerLat = -33.4489;
-        var centerLng = -70.6693;
-        var nearbyLat = -33.4500;
-        var nearbyLng = -70.6700;
+        var centerLat = 18.4861;
+        var centerLng = -69.9312;
+        var nearbyLat = 18.4870;
+        var nearbyLng = -69.9320;
 
         var result = _service.IsWithinRadius(centerLat, centerLng, nearbyLat, nearbyLng, radiusKm: 1);
 
@@ -37,10 +37,10 @@ public class HaversineServiceTests
     [Fact]
     public void IsWithinRadius_ShouldReturnFalseWhenPointsAreOutsideGivenRadius()
     {
-        var centerLat = -33.4489;
-        var centerLng = -70.6693;
-        var farLat = -33.0472;
-        var farLng = -71.6127;
+        var centerLat = 18.4861;
+        var centerLng = -69.9312;
+        var farLat = 19.4517;
+        var farLng = -70.6970;
 
         var result = _service.IsWithinRadius(centerLat, centerLng, farLat, farLng, radiusKm: 10);
 
@@ -50,8 +50,8 @@ public class HaversineServiceTests
     [Fact]
     public void CalculateDistance_ShouldReturnZeroForSamePoint()
     {
-        var lat = -33.4489;
-        var lng = -70.6693;
+        var lat = 18.4861;
+        var lng = -69.9312;
 
         var distance = _service.CalculateDistance(lat, lng, lat, lng);
 

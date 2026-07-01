@@ -8,7 +8,7 @@ public class Donation : BaseAuditableEntity
     public DonationType DonationType { get; set; }
     public DonationStatus Status { get; set; } = DonationStatus.Pending;
     public decimal? MonetaryAmount { get; set; }
-    public string? Currency { get; set; } = "MXN";
+    public string? Currency { get; set; } = "DOP";
     public string? ItemName { get; set; }
     public int? ItemQuantity { get; set; }
     public string? ItemUnit { get; set; }
