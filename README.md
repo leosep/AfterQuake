@@ -2,7 +2,7 @@
 
 [![AfterQuake Screenshot](ScreenShots/1.png)](ScreenShots/1.png)
 
-[![Watch the video](https://img.youtube.com/vi/2_2osQ7-_Jc/0.jpg)](https://youtube.com)
+[![Watch the video](https://img.youtube.com/vi/2_2osQ7-_Jc/0.jpg)](https://youtu.be/2_2osQ7-_Jc?si=omw1Tv_T3QD6HZZN)
 
 Plataforma web integral para la gestión de emergencias sísmicas, diseñada para activarse **ANTES**, **DURANTE** y **DESPUÉS** de un sismo de gran magnitud. Construida con **ASP.NET Core MVC 8**, **Clean Architecture**, **SQL Server**, y orientada 100% a dispositivos móviles.
 
