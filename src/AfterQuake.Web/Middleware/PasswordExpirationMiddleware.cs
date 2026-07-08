@@ -24,7 +24,9 @@ public class PasswordExpirationMiddleware
                     (DateTime.UtcNow - lastChange).TotalDays > MaxPasswordAgeDays)
                 {
                     if (!context.Request.Path.StartsWithSegments("/Account/ChangePassword") &&
-                        !context.Request.Path.StartsWithSegments("/Account/Logout"))
+                        !context.Request.Path.StartsWithSegments("/Account/Logout") &&
+                        !(context.Request.Path.StartsWithSegments("/Account/Profile") &&
+                          context.Request.Query["expired"] == "true"))
                     {
                         context.Response.Redirect("/Account/Profile?expired=true");
                         return;
