@@ -28,12 +28,22 @@ public static class ApplicationDbContextSeed
         }
     }
 
+    private static async Task EnsurePasswordExpirationTokenAsync(UserManager<ApplicationUser> userManager, ApplicationUser user)
+    {
+        var token = await userManager.GetAuthenticationTokenAsync(user, "PasswordExpiration", "LastChanged");
+        if (string.IsNullOrEmpty(token))
+        {
+            await userManager.SetAuthenticationTokenAsync(user, "PasswordExpiration", "LastChanged", DateTime.UtcNow.ToString("O"));
+        }
+    }
+
     private static async Task SeedUsersAsync(UserManager<ApplicationUser> userManager)
     {
         var adminEmail = "admin@afterquake.com";
-        if (await userManager.FindByEmailAsync(adminEmail) == null)
+        var admin = await userManager.FindByEmailAsync(adminEmail);
+        if (admin == null)
         {
-            var admin = new ApplicationUser
+            admin = new ApplicationUser
             {
                 UserName = adminEmail,
                 Email = adminEmail,
@@ -45,11 +55,13 @@ public static class ApplicationDbContextSeed
             await userManager.CreateAsync(admin, "AfterQuake2024!");
             await userManager.AddToRoleAsync(admin, "SuperAdministrator");
         }
+        await EnsurePasswordExpirationTokenAsync(userManager, admin);
 
         var orgEmail = "cruzroja@afterquake.com";
-        if (await userManager.FindByEmailAsync(orgEmail) == null)
+        var org = await userManager.FindByEmailAsync(orgEmail);
+        if (org == null)
         {
-            var org = new ApplicationUser
+            org = new ApplicationUser
             {
                 UserName = orgEmail,
                 Email = orgEmail,
@@ -61,6 +73,7 @@ public static class ApplicationDbContextSeed
             await userManager.CreateAsync(org, "AfterQuake2024!");
             await userManager.AddToRoleAsync(org, "ReliefOrganization");
         }
+        await EnsurePasswordExpirationTokenAsync(userManager, org);
     }
 
     private static async Task SeedEmergencyContactsAsync(ApplicationDbContext context)

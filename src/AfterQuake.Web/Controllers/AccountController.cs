@@ -146,6 +146,7 @@ public class AccountController : Controller
         if (result.Succeeded)
         {
             await _userManager.AddToRoleAsync(user, "Citizen");
+            await _userManager.SetAuthenticationTokenAsync(user, "PasswordExpiration", "LastChanged", DateTime.UtcNow.ToString("O"));
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token }, Request.Scheme);
@@ -318,8 +319,13 @@ public class AccountController : Controller
     {
         if (newPassword != confirmNewPassword)
         {
-            ModelState.AddModelError("", "Las contraseñas no coinciden.");
-            return RedirectToAction(nameof(Profile));
+            TempData["ErrorMessage"] = "Las contraseñas no coinciden.";
+            return RedirectToAction(nameof(Profile), new { expired = true });
+        }
+        if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 12)
+        {
+            TempData["ErrorMessage"] = "La nueva contraseña debe tener al menos 12 caracteres.";
+            return RedirectToAction(nameof(Profile), new { expired = true });
         }
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return NotFound();
@@ -330,9 +336,9 @@ public class AccountController : Controller
             TempData["SuccessMessage"] = "Contraseña cambiada exitosamente.";
             return RedirectToAction(nameof(Profile));
         }
-        foreach (var error in result.Errors)
-            ModelState.AddModelError("", error.Description);
-        return RedirectToAction(nameof(Profile));
+        var errors = string.Join(" ", result.Errors.Select(e => e.Description));
+        TempData["ErrorMessage"] = errors;
+        return RedirectToAction(nameof(Profile), new { expired = true });
     }
 
     private IActionResult RedirectToLocal(string? returnUrl)

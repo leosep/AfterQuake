@@ -24,6 +24,15 @@ public class DatabaseSeedService : IHostedService
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         await ApplicationDbContextSeed.SeedAsync(context, userManager, roleManager);
+
+        foreach (var user in userManager.Users.ToList())
+        {
+            var token = await userManager.GetAuthenticationTokenAsync(user, "PasswordExpiration", "LastChanged");
+            if (string.IsNullOrEmpty(token))
+            {
+                await userManager.SetAuthenticationTokenAsync(user, "PasswordExpiration", "LastChanged", DateTime.UtcNow.ToString("O"));
+            }
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
