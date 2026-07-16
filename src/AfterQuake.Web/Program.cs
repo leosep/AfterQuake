@@ -126,9 +126,10 @@ public partial class Program
             builder.Services.AddTransient<EmailService>();
             builder.Services.AddScoped<ExportService>();
             builder.Services.AddScoped<SlaService>();
+            builder.Services.AddScoped<IEmergencyBroadcastService, EmergencyBroadcastService>();
 
             // JWT Configuration
-            var jwtKey = !string.IsNullOrEmpty(builder.Configuration["Jwt:Key"]) ? builder.Configuration["Jwt:Key"]! : "AfterQuake_SuperSecret_Key_2024_Must_Be_32_Chars!";
+            var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key not found in configuration. Set Jwt:Key to a secure 32+ character secret.");
             var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "AfterQuake";
             var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "AfterQuakeAPI";
 
@@ -149,9 +150,13 @@ public partial class Program
                     {
                         OnMessageReceived = context =>
                         {
-                            var accessToken = context.Request.Query["access_token"];
-                            if (!string.IsNullOrEmpty(accessToken))
-                                context.Token = accessToken;
+                            var path = context.HttpContext.Request.Path;
+                            if (path.StartsWithSegments("/hubs"))
+                            {
+                                var accessToken = context.Request.Query["access_token"];
+                                if (!string.IsNullOrEmpty(accessToken))
+                                    context.Token = accessToken;
+                            }
                             return Task.CompletedTask;
                         }
                     };
@@ -265,11 +270,15 @@ public partial class Program
             builder.Services.AddHttpClient();
             builder.Services.AddMemoryCache();
 
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("EmergencyApp", policy =>
                 {
-                    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                    if (allowedOrigins.Length > 0)
+                        policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
+                    else
+                        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
                 });
             });
 
@@ -351,6 +360,7 @@ public partial class Program
             // Custom middleware
             app.UseCors("EmergencyApp");
             app.UseIpBlocking();
+            app.UseRateLimiting();
             app.UseRateLimiter();
             app.UseLocalization();
             app.UseAuthentication();

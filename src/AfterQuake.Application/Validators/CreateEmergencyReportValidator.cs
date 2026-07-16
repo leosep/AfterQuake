@@ -13,6 +13,8 @@ public class CreateEmergencyReportValidator : AbstractValidator<CreateEmergencyR
         RuleFor(x => x.AffectedPeople).GreaterThanOrEqualTo(0).WithMessage("Número de afectados inválido.");
         RuleFor(x => x.ReporterPhone).MaximumLength(20).WithMessage("Teléfono demasiado largo.");
         RuleFor(x => x.Description).MaximumLength(2000).WithMessage("La descripción es demasiado larga (máx. 2000 caracteres).");
+        RuleFor(x => x).Must(x => !(x.Latitude == 0 && x.Longitude == 0 && string.IsNullOrWhiteSpace(x.Address)))
+            .WithMessage("No se pudo determinar tu ubicación. Indica una dirección de referencia.");
     }
 }
 
@@ -44,6 +46,8 @@ public class CreateHelpRequestValidator : AbstractValidator<CreateHelpRequestDto
         RuleFor(x => x.RequesterPhone).NotEmpty().WithMessage("El teléfono es obligatorio.")
             .MaximumLength(20).WithMessage("Teléfono demasiado largo.");
         RuleFor(x => x.Description).MaximumLength(2000).WithMessage("La descripción es demasiado larga.");
+        RuleFor(x => x).Must(x => !(x.Latitude == 0 && x.Longitude == 0 && string.IsNullOrWhiteSpace(x.Address)))
+            .WithMessage("No se pudo determinar tu ubicación. Indica una dirección de referencia.");
     }
 }
 

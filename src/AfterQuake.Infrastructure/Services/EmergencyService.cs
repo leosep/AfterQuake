@@ -9,8 +9,13 @@ namespace AfterQuake.Infrastructure.Services;
 public class EmergencyService : IEmergencyService
 {
     private readonly IUnitOfWork _uow;
+    private readonly IEmergencyBroadcastService _broadcastService;
 
-    public EmergencyService(IUnitOfWork uow) => _uow = uow;
+    public EmergencyService(IUnitOfWork uow, IEmergencyBroadcastService broadcastService)
+    {
+        _uow = uow;
+        _broadcastService = broadcastService;
+    }
 
     public async Task<EmergencyReportDto?> GetByIdAsync(Guid id)
     {
@@ -52,7 +57,11 @@ public class EmergencyService : IEmergencyService
         var repo = _uow.Repository<EmergencyReport>();
         await repo.AddAsync(entity);
         await _uow.SaveChangesAsync();
-        return MapToDto(entity);
+
+        var resultDto = MapToDto(entity);
+        await _broadcastService.BroadcastEmergencyAsync(resultDto);
+
+        return resultDto;
     }
 
     public async Task ResolveAsync(Guid id, string? resolutionNotes)

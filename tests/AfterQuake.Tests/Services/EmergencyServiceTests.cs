@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using AfterQuake.Application.DTOs;
+using AfterQuake.Application.Interfaces;
 using AfterQuake.Domain.Entities;
 using AfterQuake.Domain.Enumerations;
 using AfterQuake.Domain.Interfaces;
@@ -8,11 +9,18 @@ using AfterQuake.Infrastructure.Services;
 
 namespace AfterQuake.Tests.Services;
 
+public class FakeEmergencyBroadcastService : IEmergencyBroadcastService
+{
+    public Task BroadcastEmergencyAsync(EmergencyReportDto dto) => Task.CompletedTask;
+    public Task BroadcastAlertAsync(AlertDto dto) => Task.CompletedTask;
+}
+
 public class EmergencyServiceTests : IDisposable
 {
     private readonly ApplicationDbContext _context;
     private readonly IUnitOfWork _uow;
     private readonly EmergencyService _service;
+    private readonly FakeEmergencyBroadcastService _broadcastService;
 
     public EmergencyServiceTests()
     {
@@ -21,7 +29,8 @@ public class EmergencyServiceTests : IDisposable
             .Options;
         _context = new ApplicationDbContext(options);
         _uow = new UnitOfWork(_context);
-        _service = new EmergencyService(_uow);
+        _broadcastService = new FakeEmergencyBroadcastService();
+        _service = new EmergencyService(_uow, _broadcastService);
     }
 
     public void Dispose() => _context.Dispose();

@@ -72,8 +72,20 @@
             <input asp-for="Longitude" type="hidden" id="help-lng" />
         </div>
 
+        <div id="location-error" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            No se pudo obtener tu ubicación GPS. Ingresa una dirección manualmente o marca la casilla "Enviar sin ubicación GPS" e indica una dirección de referencia.
+        </div>
+
+        <div class="mt-3">
+            <label class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer">
+                <input type="checkbox" id="no-gps-checkbox" class="w-5 h-5 text-blue-600 rounded" />
+                <span class="text-sm font-medium text-gray-700">Enviar sin ubicación GPS (indicaré la dirección manualmente)</span>
+            </label>
+        </div>
+
         <div class="mt-6 space-y-3">
-            <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg tap-target hover:bg-blue-700 active:bg-blue-800 transition-colors">
+            <button type="submit" id="submit-btn" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg tap-target hover:bg-blue-700 active:bg-blue-800 transition-colors">
                 <i class="bi bi-send-fill"></i> ENVIAR SOLICITUD
             </button>
             <a href="/" class="block w-full text-center text-gray-500 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors no-underline">
@@ -85,15 +97,46 @@
 
 @section Scripts {
     <script>
+        let locationCaptured = false;
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     document.getElementById('help-lat').value = pos.coords.latitude;
                     document.getElementById('help-lng').value = pos.coords.longitude;
+                    locationCaptured = true;
                 },
-                () => {},
+                () => {
+                    document.getElementById('location-error').classList.remove('hidden');
+                },
                 { enableHighAccuracy: true, timeout: 10000 }
             );
+
+            setTimeout(() => {
+                if (!locationCaptured) {
+                    document.getElementById('location-error').classList.remove('hidden');
+                }
+            }, 11000);
+        } else {
+            document.getElementById('location-error').classList.remove('hidden');
         }
+
+        document.getElementById('no-gps-checkbox').addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('location-error').classList.add('hidden');
+            }
+        });
+
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (!locationCaptured && !document.getElementById('no-gps-checkbox').checked) {
+                e.preventDefault();
+                document.getElementById('location-error').classList.remove('hidden');
+                return;
+            }
+
+            var btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Enviando...';
+        });
     </script>
 }

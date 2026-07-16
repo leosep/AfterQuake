@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Ganss.Xss;
 using AfterQuake.Domain.Entities;
 using AfterQuake.Domain.Enumerations;
 using AfterQuake.Infrastructure.Data;
@@ -96,17 +97,40 @@ public static class ApplicationDbContextSeed
     {
         if (!await context.GuideContents.AnyAsync())
         {
+            var sanitizer = new HtmlSanitizer();
+            sanitizer.AllowedTags.Clear();
+            foreach (var tag in new[] { "p", "br", "strong", "em", "ul", "ol", "li", "h2", "h3", "a" })
+                sanitizer.AllowedTags.Add(tag);
+            sanitizer.AllowedAttributes.Clear();
+            sanitizer.AllowedAttributes.Add("href");
+
+            var guide1Content = sanitizer.Sanitize(@"## Antes del sismo
+1. **Mochila de emergencia**: Prepara una mochila con agua, alimentos no perecibles, linterna, radio, botiquín, documentos importantes.
+2. **Plan familiar**: Define puntos de encuentro y roles para cada miembro.
+3. **Estructura segura**: Identifica zonas seguras en tu hogar (estructura firme, bajo mesas robustas).
+4. **Kit de herramientas**: Ten a mano llaves, cortacorrientes, extintor.
+5. **Comunicación**: Guarda números de emergencia en tu teléfono.");
+            var guide2Content = sanitizer.Sanitize(@"## Durante el sismo
+1. **Mantén la calma** y actúa con rapidez.
+2. **Agáchate, cúbrete, sujétate**: Colócate bajo una mesa firme o marco de puerta.
+3. **Aléjate de ventanas**, espejos, objetos que puedan caer.
+4. **No uses ascensores**.
+5. **Si estás en la calle**, aléjate de edificios, postes y cables eléctricos.
+6. **Si conduces**, detén el vehículo en un lugar seguro, fuera de puentes o túneles.");
+            var guide3Content = sanitizer.Sanitize(@"## Después del sismo
+1. **Verifica tu estado** y el de quienes te rodean. Reporta heridos.
+2. **Corta el suministro** de gas, agua y electricidad si hay fugas o daños.
+3. **No entres a edificios dañados**.
+4. **Mantente informado** por radio o medios oficiales.
+5. **Ayuda a vecinos** si es seguro hacerlo.
+6. **Reporta tu estado** en AfterQuake para que tu familia sepa que estás bien.");
+
             context.GuideContents.AddRange(
                 new GuideContent
                 {
                     Title = "Antes del sismo: Prepárate",
                     Summary = "Recomendaciones para preparar tu hogar y familia antes de un terremoto",
-                    Content = @"## Antes del sismo
-1. **Mochila de emergencia**: Prepara una mochila con agua, alimentos no perecibles, linterna, radio, botiquín, documentos importantes.
-2. **Plan familiar**: Define puntos de encuentro y roles para cada miembro.
-3. **Estructura segura**: Identifica zonas seguras en tu hogar (estructura firme, bajo mesas robustas).
-4. **Kit de herramientas**: Ten a mano llaves, cortacorrientes, extintor.
-5. **Comunicación**: Guarda números de emergencia en tu teléfono.",
+                    Content = guide1Content,
                     Category = "Prevencion",
                     Tags = "preparación, mochila, plan familiar, prevención",
                     IconClass = "bi-shield-check",
@@ -117,13 +141,7 @@ public static class ApplicationDbContextSeed
                 {
                     Title = "Durante el sismo: Protégete",
                     Summary = "Qué hacer durante un terremoto para mantenerte a salvo",
-                    Content = @"## Durante el sismo
-1. **Mantén la calma** y actúa con rapidez.
-2. **Agáchate, cúbrete, sujétate**: Colócate bajo una mesa firme o marco de puerta.
-3. **Aléjate de ventanas**, espejos, objetos que puedan caer.
-4. **No uses ascensores**.
-5. **Si estás en la calle**, aléjate de edificios, postes y cables eléctricos.
-6. **Si conduces**, detén el vehículo en un lugar seguro, fuera de puentes o túneles.",
+                    Content = guide2Content,
                     Category = "Durante",
                     Tags = "terremoto, protección, seguridad, sismo",
                     IconClass = "bi-exclamation-triangle",
@@ -134,13 +152,7 @@ public static class ApplicationDbContextSeed
                 {
                     Title = "Después del sismo: Actúa",
                     Summary = "Pasos a seguir después de un terremoto para mantenerte seguro",
-                    Content = @"## Después del sismo
-1. **Verifica tu estado** y el de quienes te rodean. Reporta heridos.
-2. **Corta el suministro** de gas, agua y electricidad si hay fugas o daños.
-3. **No entres a edificios dañados**.
-4. **Mantente informado** por radio o medios oficiales.
-5. **Ayuda a vecinos** si es seguro hacerlo.
-6. **Reporta tu estado** en AfterQuake para que tu familia sepa que estás bien.",
+                    Content = guide3Content,
                     Category = "Posteriores",
                     Tags = "después, réplicas, seguridad, evaluación",
                     IconClass = "bi-clipboard-check",

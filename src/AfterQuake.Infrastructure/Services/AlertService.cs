@@ -9,8 +9,13 @@ namespace AfterQuake.Infrastructure.Services;
 public class AlertService : IAlertService
 {
     private readonly IUnitOfWork _uow;
+    private readonly IEmergencyBroadcastService _broadcastService;
 
-    public AlertService(IUnitOfWork uow) => _uow = uow;
+    public AlertService(IUnitOfWork uow, IEmergencyBroadcastService broadcastService)
+    {
+        _uow = uow;
+        _broadcastService = broadcastService;
+    }
 
     public async Task<AlertDto?> GetByIdAsync(Guid id)
     {
@@ -45,7 +50,11 @@ public class AlertService : IAlertService
         var repo = _uow.Repository<Alert>();
         await repo.AddAsync(entity);
         await _uow.SaveChangesAsync();
-        return MapToDto(entity);
+
+        var resultDto = MapToDto(entity);
+        await _broadcastService.BroadcastAlertAsync(resultDto);
+
+        return resultDto;
     }
 
     public async Task DeactivateAsync(Guid id)

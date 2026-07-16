@@ -55,10 +55,9 @@ public class ApiControllerTests
             Description = "Test emergency via API"
         };
         var response = await _client.PostAsJsonAsync("/api/emergency", dto);
-        // Endpoint has [AllowAnonymous], so it accepts unauthenticated requests
-        // May return Created (201), BadRequest (400) for validation, or 500 if services unavailable
         Assert.True(response.IsSuccessStatusCode ||
                     response.StatusCode == HttpStatusCode.BadRequest ||
                     response.StatusCode == HttpStatusCode.InternalServerError);
     }
+
 }

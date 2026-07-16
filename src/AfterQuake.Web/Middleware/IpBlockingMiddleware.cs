@@ -6,7 +6,7 @@ public class IpBlockingMiddleware
 {
     private readonly RequestDelegate _next;
     private static readonly ConcurrentDictionary<string, FailedAttempts> _failedAttempts = new();
-    private static readonly HashSet<string> _blockedIps = new();
+    private static readonly ConcurrentDictionary<string, byte> _blockedIps = new();
     private static readonly Timer _cleanupTimer;
 
     private const int MaxAttempts = 10;
@@ -27,10 +27,16 @@ public class IpBlockingMiddleware
             }
 
             var unblockCutoff = DateTime.UtcNow - BlockDuration;
-            foreach (var ip in _blockedIps)
+            var toUnblock = _blockedIps.Keys.Where(ip =>
             {
-                if (_failedAttempts.TryGetValue(ip, out var fa) && fa.BlockedAt < unblockCutoff)
-                    _blockedIps.Remove(ip);
+                if (_failedAttempts.TryGetValue(ip, out var fa))
+                    return fa.BlockedAt < unblockCutoff;
+                return true;
+            }).ToList();
+
+            foreach (var ip in toUnblock)
+            {
+                _blockedIps.TryRemove(ip, out _);
             }
         }, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
     }
@@ -41,7 +47,7 @@ public class IpBlockingMiddleware
     {
         var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-        if (_blockedIps.Contains(ip))
+        if (_blockedIps.ContainsKey(ip))
         {
             context.Response.StatusCode = 429;
             await context.Response.WriteAsJsonAsync(new { error = "Demasiados intentos fallidos. Intenta en 15 minutos." });
@@ -63,7 +69,7 @@ public class IpBlockingMiddleware
             if (entry.Count >= MaxAttempts)
             {
                 entry.BlockedAt = DateTime.UtcNow;
-                _blockedIps.Add(ip);
+                _blockedIps.TryAdd(ip, 0);
             }
         }
     }
@@ -71,7 +77,7 @@ public class IpBlockingMiddleware
     public static void RecordSuccess(string ip)
     {
         _failedAttempts.TryRemove(ip, out _);
-        _blockedIps.Remove(ip);
+        _blockedIps.TryRemove(ip, out _);
     }
 
     private class FailedAttempts

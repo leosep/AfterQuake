@@ -55,6 +55,10 @@
                 <p class="text-red-100 text-sm mt-1">Reportar una emergencia ahora</p>
             </div>
         </a>
+        <div id="gps-error-banner" class="hidden bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-yellow-800 text-sm">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            No se pudo detectar tu ubicación automáticamente. Al reportar una emergencia, asegúrate de indicar una dirección manual.
+        </div>
 
         <a href="/Person" class="block no-underline">
             <div class="bg-white rounded-2xl p-6 border border-gray-200 hover:border-yellow-300 hover:shadow-lg transition-all text-center">
@@ -174,9 +178,15 @@
                     document.getElementById('sos-lat')?.setAttribute('value', pos.coords.latitude);
                     document.getElementById('sos-lng')?.setAttribute('value', pos.coords.longitude);
                 },
-                () => {},
+                () => {
+                    var banner = document.getElementById('gps-error-banner');
+                    if (banner) banner.classList.remove('hidden');
+                },
                 { enableHighAccuracy: true, timeout: 10000 }
             );
+        } else {
+            var banner = document.getElementById('gps-error-banner');
+            if (banner) banner.classList.remove('hidden');
         }
     </script>
 }

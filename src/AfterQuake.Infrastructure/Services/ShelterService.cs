@@ -68,6 +68,8 @@ public class ShelterService : IShelterService
             entity.UpdatedAt = DateTime.UtcNow;
             if (entity.CurrentOccupancy >= entity.TotalCapacity)
                 entity.Status = ShelterStatus.Full;
+            else if (entity.CurrentOccupancy < entity.TotalCapacity && entity.Status == ShelterStatus.Full)
+                entity.Status = ShelterStatus.Active;
             await repo.UpdateAsync(entity);
             await _uow.SaveChangesAsync();
         }

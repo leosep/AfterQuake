@@ -10,8 +10,13 @@ namespace AfterQuake.Infrastructure.Services;
 public class PersonReportService : IPersonReportService
 {
     private readonly IUnitOfWork _uow;
+    private readonly INotificationService _notificationService;
 
-    public PersonReportService(IUnitOfWork uow) => _uow = uow;
+    public PersonReportService(IUnitOfWork uow, INotificationService notificationService)
+    {
+        _uow = uow;
+        _notificationService = notificationService;
+    }
 
     public async Task<PersonReportDto?> GetByIdAsync(Guid id)
     {
@@ -95,7 +100,27 @@ public class PersonReportService : IPersonReportService
         if (!string.IsNullOrWhiteSpace(dto.MissingPersonName))
         {
             var potentialMatches = await GetPotentialMatchesAsync(dto.MissingPersonName);
-            if (potentialMatches.Count > 0) { }
+            if (potentialMatches.Count > 0)
+            {
+                if (potentialMatches.Count == 1 && string.Equals(potentialMatches[0].MissingPersonName, dto.MissingPersonName, StringComparison.OrdinalIgnoreCase))
+                {
+                    entity.MatchedToReportId = potentialMatches[0].Id;
+                }
+
+                var matchLinks = string.Join(", ", potentialMatches.Select(m => m.Id.ToString()));
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    await _notificationService.SendToUserAsync(userId, "Posibles coincidencias encontradas",
+                        $"Se encontraron {potentialMatches.Count} reporte(s) con nombre similar a '{dto.MissingPersonName}'. IDs: {matchLinks}",
+                        $"/Person/Details/{entity.Id}");
+                }
+                await _notificationService.SendToRoleAsync("Administrator", "Revisión de coincidencias requerida",
+                    $"Nuevo reporte de '{dto.MissingPersonName}' puede coincidir con {potentialMatches.Count} reporte(s) existente(s). IDs: {matchLinks}",
+                    $"/Person/Details/{entity.Id}");
+                await _notificationService.SendToRoleAsync("Volunteer", "Revisión de coincidencias requerida",
+                    $"Nuevo reporte de '{dto.MissingPersonName}' puede coincidir con {potentialMatches.Count} reporte(s) existente(s). IDs: {matchLinks}",
+                    $"/Person/Details/{entity.Id}");
+            }
         }
 
         var repo = _uow.Repository<PersonReport>();
@@ -132,7 +157,8 @@ public class PersonReportService : IPersonReportService
     public async Task<int> GetFoundCountAsync()
     {
         var repo = _uow.Repository<PersonReport>();
-        return await repo.CountAsync(p => p.ReportType == PersonReportType.Found || p.Status == PersonReportStatus.Resolved);
+        return await repo.CountAsync(p => p.Status == PersonReportStatus.Resolved &&
+            (p.ReportType == PersonReportType.Found || p.ReportType == PersonReportType.Missing));
     }
 
     private static PersonReportDto MapToDto(PersonReport e) => new()

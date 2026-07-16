@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using AfterQuake.Application.DTOs;
+using AfterQuake.Application.Interfaces;
 using AfterQuake.Domain.Entities;
 using AfterQuake.Domain.Enumerations;
 using AfterQuake.Domain.Interfaces;
@@ -13,6 +14,7 @@ public class PersonReportServiceTests : IDisposable
     private readonly ApplicationDbContext _context;
     private readonly IUnitOfWork _uow;
     private readonly PersonReportService _service;
+    private readonly FakeNotificationService _notificationService;
 
     public PersonReportServiceTests()
     {
@@ -21,7 +23,8 @@ public class PersonReportServiceTests : IDisposable
             .Options;
         _context = new ApplicationDbContext(options);
         _uow = new UnitOfWork(_context);
-        _service = new PersonReportService(_uow);
+        _notificationService = new FakeNotificationService();
+        _service = new PersonReportService(_uow, _notificationService);
     }
 
     public void Dispose() => _context.Dispose();
@@ -130,4 +133,39 @@ public class PersonReportServiceTests : IDisposable
         Assert.Equal(2, matches.Count);
         Assert.All(matches, m => Assert.Contains("Luis", m.MissingPersonName));
     }
+
+    [Fact]
+    public async Task CreateAsync_WithPotentialMatch_ShouldNotifyAdministrator()
+    {
+        var repo = _uow.Repository<PersonReport>();
+        await repo.AddAsync(new PersonReport { MissingPersonName = "Carlos Ruiz", ReportType = PersonReportType.Missing, Status = PersonReportStatus.Active, ReportedAt = DateTime.UtcNow });
+        await _uow.SaveChangesAsync();
+
+        var dto = new CreatePersonReportDto
+        {
+            ReportType = PersonReportType.Missing,
+            MissingPersonName = "Carlos Ruiz",
+            ContactPhone = "+18095554321"
+        };
+
+        await _service.CreateAsync(dto);
+
+        Assert.True(_notificationService.SendToRoleCalled);
+    }
+}
+
+public class FakeNotificationService : INotificationService
+{
+    public bool SendToRoleCalled { get; private set; }
+
+    public Task SendToUserAsync(string userId, string title, string message, string? link = null) => Task.CompletedTask;
+    public Task SendToRoleAsync(string role, string title, string message, string? link = null)
+    {
+        SendToRoleCalled = true;
+        return Task.CompletedTask;
+    }
+    public Task SendToZoneAsync(string zoneCode, string title, string message, string? link = null) => Task.CompletedTask;
+    public Task<IReadOnlyList<Notification>> GetUserNotificationsAsync(string userId) => Task.FromResult<IReadOnlyList<Notification>>(new List<Notification>());
+    public Task MarkAsReadAsync(Guid notificationId) => Task.CompletedTask;
+    public Task<int> GetUnreadCountAsync(string userId) => Task.FromResult(0);
 }

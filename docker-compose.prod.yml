@@ -16,6 +16,7 @@ services:
       - Email__Username=${SMTP_USER}
       - Email__Password=${SMTP_PASS}
       - Email__EnableSsl=true
+      - Cors__AllowedOrigins__0=${CORS_ALLOWED_ORIGINS}
     deploy:
       replicas: 3
       resources:

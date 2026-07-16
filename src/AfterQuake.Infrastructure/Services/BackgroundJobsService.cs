@@ -72,6 +72,7 @@ public class BackgroundJobsService : IHostedService, IDisposable
     {
         using var scope = _scopeFactory.CreateScope();
         var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
         var personRepo = uow.Repository<PersonReport>();
         var patientRepo = uow.Repository<UnidentifiedPatient>();
 
@@ -92,6 +93,11 @@ public class BackgroundJobsService : IHostedService, IDisposable
                 _logger.LogInformation(
                     "Potential match: Patient {PatientId} (Hospital: {Hospital}) matches Missing Person {PersonId} ({Name}) in zone {Zone}",
                     patient.Id, patient.HospitalName, match.Id, match.MissingPersonName, match.ZoneCode);
+
+                await notificationService.SendToRoleAsync("Administrator",
+                    "Posible coincidencia paciente-desaparecido",
+                    $"Paciente {patient.Id} ({patient.HospitalName}) podría coincidir con la persona desaparecida {match.MissingPersonName} ({match.Id}) en zona {match.ZoneCode}.",
+                    $"/Person/Details/{match.Id}");
             }
         }
 
@@ -157,6 +163,7 @@ public class BackgroundJobsService : IHostedService, IDisposable
     {
         using var scope = _scopeFactory.CreateScope();
         var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
         var offerRepo = uow.Repository<HelpOffer>();
         var requestRepo = uow.Repository<HelpRequest>();
 
@@ -180,6 +187,22 @@ public class BackgroundJobsService : IHostedService, IDisposable
                 _logger.LogInformation(
                     "Potential match: Offer {OfferId} ({OfferType}, Zone: {Zone}) -> Request {RequestId} ({RequestType}, Zone: {Zone})",
                     offer.Id, offer.OfferType, offer.ZoneCode, request.Id, request.RequestType, request.ZoneCode);
+
+                if (!string.IsNullOrEmpty(offer.UserId))
+                {
+                    await notificationService.SendToUserAsync(offer.UserId,
+                        "Posible coincidencia de ayuda",
+                        $"Tu ofrecimiento de ayuda ({offer.OfferType}) podría coincidir con una solicitud en {request.ZoneCode}.",
+                        $"/HelpRequest/Details/{request.Id}");
+                }
+
+                if (!string.IsNullOrEmpty(request.UserId))
+                {
+                    await notificationService.SendToUserAsync(request.UserId,
+                        "Posible coincidencia de ayuda",
+                        $"Tu solicitud de ayuda ({request.RequestType}) podría coincidir con un ofrecimiento en {request.ZoneCode}.",
+                        $"/HelpRequest/Details/{request.Id}");
+                }
             }
         }
 

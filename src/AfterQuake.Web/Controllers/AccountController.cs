@@ -15,17 +15,20 @@ public class AccountController : Controller
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly CaptchaService _captchaService;
     private readonly EmailService _emailService;
+    private readonly ILogger<AccountController> _logger;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         CaptchaService captchaService,
-        EmailService emailService)
+        EmailService emailService,
+        ILogger<AccountController> logger)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _captchaService = captchaService;
         _emailService = emailService;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -59,6 +62,7 @@ public class AccountController : Controller
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user == null)
         {
+            _userManager.PasswordHasher.VerifyHashedPassword(null, "$2a$11$K4YfGqJ1e4YHIpRufVY7NO7vW7tJ3c1y2kL3m4n5o6p7q8r9s0t1u2v3w4x5y6z", model.Password);
             ModelState.AddModelError(string.Empty, "Usuario o contraseña incorrectos.");
             var captcha = _captchaService.Generate();
             ViewBag.CaptchaId = captcha.id;
@@ -155,10 +159,13 @@ public class AccountController : Controller
                 await _emailService.SendAsync(user.Email!, "Confirma tu cuenta en AfterQuake",
                     $"<h2>Bienvenido a AfterQuake</h2><p>Haz clic <a href='{callbackUrl}'>aquí</a> para confirmar tu correo.</p>");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al enviar correo de confirmación a {Email}", user.Email);
+            }
 
-            await _signInManager.SignInAsync(user, isPersistent: false);
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            TempData["SuccessMessage"] = "Cuenta creada exitosamente. Revisa tu correo para confirmar la cuenta antes de iniciar sesión.";
+            return RedirectToAction(nameof(Login));
         }
 
         foreach (var error in result.Errors)
@@ -220,7 +227,10 @@ public class AccountController : Controller
                 await _emailService.SendAsync(user.Email!, "Recuperación de contraseña - AfterQuake",
                     $"<h2>Recupera tu contraseña</h2><p>Haz clic <a href='{resetLink}'>aquí</a> para restablecer tu contraseña.</p>");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al enviar correo de recuperación a {Email}", user.Email);
+            }
         }
 
         ViewBag.Message = "Si el correo existe, recibirás un enlace de recuperación.";
